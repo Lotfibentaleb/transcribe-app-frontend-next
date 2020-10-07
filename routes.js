@@ -18,9 +18,6 @@
 // @material-ui/icons
 import Dashboard from "@material-ui/icons/Dashboard";
 import Movie from "@material-ui/icons/Movie";
-import Queue from "@material-ui/icons/Queue";
-import Audiotrack from "@material-ui/icons/Audiotrack";
-import FeaturedPlayList from "@material-ui/icons/FeaturedPlayList";
 
 const dashboardRoutes = [
   {
@@ -31,30 +28,9 @@ const dashboardRoutes = [
     layout: "/admin",
   },
   {
-    path: "/video-upload",
-    name: "Video Upload",
+    path: "/media",
+    name: "Media",
     icon: Movie,
-
-    layout: "/admin",
-  },
-  {
-    path: "/video-list",
-    name: "Video List",
-    icon: Queue,
-
-    layout: "/admin",
-  },
-  {
-    path: "/audio-upload",
-    name: "Audio Upload",
-    icon: Audiotrack,
-
-    layout: "/admin",
-  },
-  {
-    path: "/audio-list",
-    name: "Audio List",
-    icon: FeaturedPlayList,
 
     layout: "/admin",
   },

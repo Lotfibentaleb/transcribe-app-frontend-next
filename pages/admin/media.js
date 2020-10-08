@@ -1,6 +1,8 @@
 import React from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+// @material-ui/icons
+import CloudUpload from "@material-ui/icons/CloudUpload";
 // layout for this page
 import Admin from "layouts/Admin.js";
 // core components
@@ -32,6 +34,12 @@ const styles = {
   },
   justifyCenter: {
     justifyContent: "center",
+  },
+  justifyEnd: {
+    justifyContent: "flex-end",
+  },
+  cloudUpload: {
+    paddingRight: "10px",
   },
   datePicker: {
     marginRight: "20px"
@@ -97,6 +105,14 @@ function Media() {
             </CardHeader>
             <CardBody>
               <GridItem xs={12} sm={12} md={12}>
+                <Grid className={`${classes.displayFlex} ${classes.justifyEnd}`}>
+                  <Button variant="contained" color="primary">
+                    <CloudUpload className={classes.cloudUpload} />
+                    Upload File
+                  </Button>
+                </Grid>
+              </GridItem>
+              <GridItem xs={12} sm={12} md={12}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <Grid className={`${classes.displayFlex} ${classes.justifyStart}`}>
                     <KeyboardDatePicker
@@ -145,8 +161,11 @@ function Media() {
               />
               <GridItem xs={12} sm={12} md={12}>
                 <Grid className={`${classes.displayFlex} ${classes.justifyCenter}`}>
-                  <Button variant="contained" color="primary" className={classes.viewMediaButton}>
-                    View Medias
+                  <Button variant="contained" color="primary" disabled>
+                    Previous
+                  </Button>
+                  <Button variant="contained" color="primary">
+                    Next
                   </Button>
                 </Grid>
               </GridItem>

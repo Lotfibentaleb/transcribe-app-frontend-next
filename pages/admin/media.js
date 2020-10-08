@@ -1,6 +1,13 @@
 import React from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 // @material-ui/icons
 import CloudUpload from "@material-ui/icons/CloudUpload";
 // layout for this page
@@ -83,8 +90,12 @@ const useStyles = makeStyles(styles);
 function Media() {
   const classes = useStyles();
   // The first commit of Material-UI
+  const [openDialog, setOpenDialog] = React.useState(false);
   const [selectedFromDate, setSelectedFromDate] = React.useState(new Date());
   const [selectedToDate, setSelectedToDate] = React.useState(new Date());
+  // dialog handle event
+  const handleOpenDialog = () => { setOpenDialog(true); };
+  const handleCloseDialog = () => { setOpenDialog(false); };
 
   const handleFromDateChange = (date) => {
     setSelectedFromDate(date);
@@ -106,7 +117,7 @@ function Media() {
             <CardBody>
               <GridItem xs={12} sm={12} md={12}>
                 <Grid className={`${classes.displayFlex} ${classes.justifyEnd}`}>
-                  <Button variant="contained" color="primary">
+                  <Button variant="contained" color="primary" onClick={handleOpenDialog}>
                     <CloudUpload className={classes.cloudUpload} />
                     Upload File
                   </Button>
@@ -173,6 +184,39 @@ function Media() {
           </Card>
         </GridItem>
       </GridContainer>
+      {/* media upload dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Media File Upload</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here. We will send updates
+            occasionally.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="media"
+            label="Upload File"
+            type="file"
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            id="metadata"
+            label="Please insert metadata"
+            type="text"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleCloseDialog} color="primary">
+            Upload
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

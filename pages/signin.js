@@ -60,7 +60,7 @@ function Signin() {
     Router.push("/signup");
   }
   const handleSignin = () => {
-    alert("Sign in")
+    Router.push("/admin/dashboard");
   }
   return (
     <div>
@@ -114,10 +114,10 @@ function Signin() {
                   <div className={`${classes.displayFlex} ${classes.justifyCenter}`}>
                     <Button variant="contained" color="primary" onClick={handleGotoSignup}>
                       Go to Sign Up
-                        </Button>
+                    </Button>
                     <Button variant="contained" color="success" onClick={handleSignin}>
                       Sign In
-                        </Button>
+                    </Button>
                   </div>
                 </GridItem>
               </GridContainer>

@@ -1,4 +1,5 @@
 import React from "react";
+import Router from "next/router";
 import classNames from "classnames";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -49,6 +50,9 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
+  const handleSignout = () => {
+    Router.push("/signin");
+  }
   return (
     <div>
       <div className={classes.searchWrapper}>
@@ -209,7 +213,7 @@ export default function AdminNavbarLinks() {
                     </MenuItem>
                     <Divider light />
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleSignout}
                       className={classes.dropdownItem}
                     >
                       Logout

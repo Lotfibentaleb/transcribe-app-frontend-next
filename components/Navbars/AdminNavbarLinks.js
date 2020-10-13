@@ -21,6 +21,9 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import useWindowSize from "components/Hooks/useWindowSize.js";
 
+// call apis
+import authAPI from "../../apis/auth";
+
 import styles from "assets/jss/nextjs-material-dashboard/components/headerLinksStyle.js";
 
 const useStyles = makeStyles(styles);
@@ -51,7 +54,11 @@ export default function AdminNavbarLinks() {
     setOpenProfile(null);
   };
   const handleSignout = () => {
-    Router.push("/signin");
+    if(authAPI.signout() === true) {
+      Router.push("/signin");
+    } else {
+      console.log("Unkown Error")
+    }
   }
   return (
     <div>

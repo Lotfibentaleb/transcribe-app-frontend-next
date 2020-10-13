@@ -18,6 +18,7 @@ class Auth {
 
   signout() {
     localStorage.clear();
+    return true;
   }
 
   signup(authInfo) {

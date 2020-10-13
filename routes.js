@@ -18,6 +18,7 @@
 // @material-ui/icons
 import Dashboard from "@material-ui/icons/Dashboard";
 import Movie from "@material-ui/icons/Movie";
+import People from "@material-ui/icons/People";
 
 const dashboardRoutes = [
   {
@@ -31,6 +32,13 @@ const dashboardRoutes = [
     path: "/media",
     name: "Media",
     icon: Movie,
+
+    layout: "/admin",
+  },
+  {
+    path: "/user",
+    name: "User",
+    icon: People,
 
     layout: "/admin",
   },

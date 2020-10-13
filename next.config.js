@@ -11,6 +11,6 @@ module.exports = withPlugins([[withSass], [withImages], [withCSS]], {
     return config;
   },
   env: {
-    API_ENDPOINT: 'http://192.168.105.42:20000/api',
+    API_ENDPOINT: 'http://192.168.105.42:20000/api/',
   },
 });

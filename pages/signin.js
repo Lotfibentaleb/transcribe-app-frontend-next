@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Router from "next/router";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,6 +14,7 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
+import authAPI from "../apis/auth";
 
 
 const styles = {
@@ -59,8 +60,36 @@ function Signin() {
   const handleGotoSignup = () => {
     Router.push("/signup");
   }
+  const [isLoading, setIsLoading] = useState(false);
+  const [authInfo, setAuthInfo] = useState({
+    email: "giorgiebanoidze90@gmail.com",
+    password : "123456"
+  })
+
   const handleSignin = () => {
-    Router.push("/admin/dashboard");
+    setIsLoading(true)
+    authAPI.login(authInfo)
+    .then(
+      response => {
+        if( response.jwt_token !== null) {
+          localStorage.setItem("jwt_token", JSON.stringify(response.jwt_token));
+          setIsLoading(false)
+          Router.push("/admin/dashboard");
+        } else {
+          console.log(response)
+        }
+      },
+      error => {
+        setIsLoading(false);
+      }
+    )
+  }
+  
+  const handleEmailChange = (event) => {
+    authInfo.email = event.target.value;
+  }
+  const handlePasswordChange = (event) => {
+    authInfo.password = event.target.value;
   }
   return (
     <div>
@@ -87,6 +116,7 @@ function Signin() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleEmailChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -106,6 +136,7 @@ function Signin() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handlePasswordChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -115,9 +146,15 @@ function Signin() {
                     <Button variant="contained" color="primary" onClick={handleGotoSignup}>
                       Go to Sign Up
                     </Button>
-                    <Button variant="contained" color="success" onClick={handleSignin}>
-                      Sign In
-                    </Button>
+                    {
+                      isLoading ?
+                      <Button variant="contained" disabled color="success" onClick={handleSignin}>
+                        Sign In
+                      </Button> :
+                      <Button variant="contained" color="success" onClick={handleSignin}>
+                        Sign In
+                      </Button>
+                    }
                   </div>
                 </GridItem>
               </GridContainer>

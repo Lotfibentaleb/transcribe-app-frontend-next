@@ -5,34 +5,33 @@ import authHeader from './auth-header';
 const API_URL = process.env.API_ENDPOINT;
 
 class Auth {
-  login(authInfo) {
+  signin(authInfo) {
     return axios
       .post(API_URL + "auth/login", authInfo)
-      .then(response => {        
-        if (response.data.token) {          
-          localStorage.setItem("user", JSON.stringify(response.data));          
+      .then(response => {
+        if (response.data.jwt_token !== null) {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
         }
         return response.data;
-      });      
+      });
   }
 
-  logout() {
+  signout() {
     localStorage.clear();
   }
 
-  register(name, email, password) {    
+  signup(authInfo) {
     return axios
-    .post(API_URL + "register", {
-      name,
-      email,
-      password
-    })
-    .then(response => {      
-      return response.data;
-    });
+      .post(API_URL + "auth/register", authInfo)
+      .then(response => {
+        if (response.data.jwt_token !== null) {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        }
+        return response.data;
+      });
   }
 
-  
+
 }
 
 export default new Auth();

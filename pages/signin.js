@@ -14,6 +14,7 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
+// call api
 import authAPI from "../apis/auth";
 
 
@@ -62,34 +63,51 @@ function Signin() {
   }
   const [isLoading, setIsLoading] = useState(false);
   const [authInfo, setAuthInfo] = useState({
-    email: "giorgiebanoidze90@gmail.com",
-    password : "123456"
+    email: "",
+    password : ""
   })
 
   const handleSignin = () => {
-    setIsLoading(true)
-    authAPI.login(authInfo)
-    .then(
-      response => {
-        if( response.jwt_token !== null) {
-          localStorage.setItem("jwt_token", JSON.stringify(response.jwt_token));
-          setIsLoading(false)
-          Router.push("/admin/dashboard");
-        } else {
-          console.log(response)
+    if (authInfo.email === "" || authInfo.password === "") {
+      alert("Please insert all information.")
+    } else if (validateEmail(authInfo.email) !== true ){
+      alert("Email is not validate. Please insert correct Email.")
+    } else {
+      setIsLoading(true)
+      authAPI.signin(authInfo)
+      .then(
+        response => {
+          if( response.jwt_token !== undefined) {
+            setIsLoading(false)
+            Router.push("/admin/dashboard");
+          } else {
+            console.log(response)
+          }
+        },
+        error => {
+          setIsLoading(false);
         }
-      },
-      error => {
-        setIsLoading(false);
-      }
-    )
+      )
+    }
   }
   
-  const handleEmailChange = (event) => {
-    authInfo.email = event.target.value;
+  const handleInputChange = (event) => {
+    switch(event.target.id){
+      case "email":
+        authInfo.email = event.target.value
+        break;
+      case "password":
+        authInfo.password = event.target.value
+        break;
+    }
   }
-  const handlePasswordChange = (event) => {
-    authInfo.password = event.target.value;
+
+  const validateEmail = (email) => {
+    const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (email.match(mailformat)) {
+      return true;
+    }
+    return false;
   }
   return (
     <div>
@@ -116,7 +134,7 @@ function Signin() {
                         </InputAdornment>
                       )
                     }}
-                    onChange={handleEmailChange}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -136,7 +154,7 @@ function Signin() {
                         </InputAdornment>
                       )
                     }}
-                    onChange={handlePasswordChange}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>

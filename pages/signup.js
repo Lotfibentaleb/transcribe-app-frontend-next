@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Router from "next/router";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -15,6 +15,8 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
+// call api
+import authAPI from "../apis/auth";
 
 
 const styles = {
@@ -60,8 +62,66 @@ function Signup() {
   const handleGotoSignin = () => {
     Router.push("/signin");
   }
+  const [isLoading, setIsLoading] = useState(false);
+  const [authInfo, setAuthInfo] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirm_password: ""
+  })
   const handleSignup = () => {
-    alert("Sign up")
+    if (authInfo.password !== authInfo.confirm_password) {
+      alert("Incorrect password and confirm password. Please insert corract password and confirm password.")
+    } else if (validateEmail(authInfo.email) !== true) {
+      alert("Email is not validate. Please insert correct Email.")
+    } else if(authInfo.first_name === "" || authInfo.last_name === "" || authInfo.email === "" || authInfo.password === "" || authInfo.confirm_password === "") {
+      alert("Please insert all information.")
+    } else {
+      setIsLoading(true);
+      authAPI.signup(authInfo)
+      .then(
+        response => {
+          if(response.jwt_token !== undefined){
+            setIsLoading(false)
+            Router.push("admin/dashboard")
+          } else {
+            console.log(response)
+          }
+        },
+        error => {
+          setIsLoading(false)
+        }
+      )
+    }
+  }
+
+  const handleInputChange = (event) => {
+    switch(event.target.id){
+      case "firstName":
+        authInfo.first_name = event.target.value
+        break;
+      case "lastName":
+        authInfo.last_name = event.target.value
+        break;
+      case "email":
+        authInfo.email = event.target.value
+        break;
+      case "password":
+        authInfo.password = event.target.value
+        break;
+      case "confirmPassword":
+        authInfo.confirm_password = event.target.value
+        break;
+    }
+  }
+
+  const validateEmail = (email) => {
+    const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (email.match(mailformat)) {
+      return true;
+    }
+    return false;
   }
   return (
     <div>
@@ -88,6 +148,7 @@ function Signup() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -107,6 +168,7 @@ function Signup() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -126,6 +188,7 @@ function Signup() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -145,6 +208,7 @@ function Signup() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -164,6 +228,7 @@ function Signup() {
                         </InputAdornment>
                       )
                     }}
+                    onChange={handleInputChange}
                   />
                 </GridItem>
               </GridContainer>
@@ -172,10 +237,16 @@ function Signup() {
                   <div className={`${classes.displayFlex} ${classes.justifyCenter}`}>
                     <Button variant="contained" color="success" onClick={handleGotoSignin}>
                       Go to Sign In
-                        </Button>
-                    <Button variant="contained" color="primary" onClick={handleSignup}>
-                      Sign Up
-                        </Button>
+                    </Button>
+                    {
+                      isLoading ?
+                      <Button variant="contained" disabled color="primary" onClick={handleSignup}>
+                        Sign Up
+                      </Button> :
+                      <Button variant="contained" color="primary" onClick={handleSignup}>
+                        Sign Up
+                      </Button>
+                    }
                   </div>
                 </GridItem>
               </GridContainer>

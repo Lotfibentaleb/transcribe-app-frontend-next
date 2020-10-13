@@ -1,4 +1,5 @@
 import React from "react";
+import Router from "next/router";
 import classNames from "classnames";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,6 +20,9 @@ import Search from "@material-ui/icons/Search";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import useWindowSize from "components/Hooks/useWindowSize.js";
+
+// call apis
+import authAPI from "../../apis/auth";
 
 import styles from "assets/jss/nextjs-material-dashboard/components/headerLinksStyle.js";
 
@@ -49,6 +53,13 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
+  const handleSignout = () => {
+    if(authAPI.signout() === true) {
+      Router.push("/signin");
+    } else {
+      console.log("Unkown Error")
+    }
+  }
   return (
     <div>
       <div className={classes.searchWrapper}>
@@ -209,7 +220,7 @@ export default function AdminNavbarLinks() {
                     </MenuItem>
                     <Divider light />
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleSignout}
                       className={classes.dropdownItem}
                     >
                       Logout

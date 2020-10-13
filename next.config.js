@@ -10,4 +10,7 @@ module.exports = withPlugins([[withSass], [withImages], [withCSS]], {
     config.resolve.modules.push(path.resolve("./"));
     return config;
   },
+  env: {
+    API_ENDPOINT: 'http://192.168.105.42:20000/api/',
+  },
 });

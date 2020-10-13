@@ -1,6 +1,8 @@
 import axios from "axios"
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
 
-const API_URL = process.env.API_ENDPOINT;
+const API_URL = publicRuntimeConfig.API_ENDPOINT;
 
 class User {
   users() {

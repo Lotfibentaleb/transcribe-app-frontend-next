@@ -1,8 +1,9 @@
 import axios from "axios"
 import authHeader from './auth-header';
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
 
-
-const API_URL = process.env.API_ENDPOINT;
+const API_URL = publicRuntimeConfig.API_ENDPOINT;
 
 class Auth {
   signin(authInfo) {

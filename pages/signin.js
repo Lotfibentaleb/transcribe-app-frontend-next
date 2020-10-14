@@ -35,9 +35,6 @@ const styles = {
     alignItems: "center",
     width: "100% !important",
   },
-  justifyStart: {
-    justifyContent: "flex-start",
-  },
   justifyCenter: {
     justifyContent: "center",
   },

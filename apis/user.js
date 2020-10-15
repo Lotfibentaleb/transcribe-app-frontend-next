@@ -25,6 +25,32 @@ class User {
         }
       )
   }
+
+  deleteUser(id) {
+    return axios
+      .get(API_URL + "users/delete/" + id)
+      .then(
+        response => {
+          return response.data;
+        },
+        error => {
+          console.log(error)
+        }
+      )
+  }
+
+  editUser(userInfo, id) {
+    return axios
+      .post(API_URL + "users/edit/" + id, userInfo)
+      .then(
+        response => {
+          return response.data;
+        },
+        error => {
+          console.log(error)
+        }
+      )
+  }
 }
 
 export default new User();

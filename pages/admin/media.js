@@ -308,7 +308,7 @@ function Media() {
                     variant="inline"
                     format="MM/dd/yyyy"
                     margin="normal"
-                    id="date-picker-inline"
+                    id="date-picker-from"
                     label="From"
                     value={selectedFromDate}
                     onChange={handleFromDateChange}
@@ -321,7 +321,7 @@ function Media() {
                     variant="inline"
                     format="MM/dd/yyyy"
                     margin="normal"
-                    id="date-picker-inline"
+                    id="date-picker-to"
                     label="To"
                     value={selectedToDate}
                     onChange={handleToDateChange}

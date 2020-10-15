@@ -5,9 +5,9 @@ const { publicRuntimeConfig } = getConfig();
 const API_URL = publicRuntimeConfig.API_ENDPOINT;
 
 class User {
-  users() {
+  users(signal) {
     return axios
-      .get(API_URL + "users")
+      .get(API_URL + "users", { signal: signal })
       .then(response => {
         return response.data;
       });

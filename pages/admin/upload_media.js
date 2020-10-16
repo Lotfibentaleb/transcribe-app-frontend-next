@@ -18,6 +18,8 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
+// call api
+import uploadMediaAPI from "../../apis/upload-media";
 
 // styles
 const useStyles = makeStyles((theme) => ({
@@ -94,14 +96,45 @@ function UploadMedia() {
 
   // dropzone
   const [acceptedFiles, setAcceptedFiles] = useState([]);
+  const [progress, setProgress] = React.useState(0);
 
-  const addKeyInAcceptedFiles = (acceptedFile) => {
-    setAcceptedFiles(acceptedFile)
+  const addKeyInAcceptedFiles = (selectedFiles) => {
+    setAcceptedFiles(selectedFiles)    
+  }
+
+  const callbackProgress = (progress) => {
+    if(progress > 99){
+      progress = 99;
+    }
+    console.log('progress', progress)
+    setProgress(progress);
   }
 
   // initial method
   useEffect(() => {
   }, [])
+
+  useEffect(() => {
+    fileUpload();
+  }, [acceptedFiles])
+
+  const fileUpload = () => {
+    if(acceptedFiles.length !== 0) {
+      var fileUploadInfo = new FormData();
+      acceptedFiles.forEach((file) => {
+        fileUploadInfo.append('file', file);
+      });
+      uploadMediaAPI.upload(fileUploadInfo, callbackProgress)
+        .then(
+          response => {
+            console.log(response)
+          },
+          error => {
+            console.log(error)
+          }
+        )
+    }
+  }
 
   return (
     <div>
@@ -147,7 +180,7 @@ function UploadMedia() {
               {/* dropzone part */}
               <Grid item sm={12} md={12} lg={8} className={classes.padding20}>
                 <Dropzone
-                  onDrop={acceptedFile => { console.log(acceptedFile), addKeyInAcceptedFiles(acceptedFile) }}
+                  onDrop={selectedFiles => { addKeyInAcceptedFiles(selectedFiles) }}
                 >
                   {({ getRootProps, getInputProps }) => (
                     <section>

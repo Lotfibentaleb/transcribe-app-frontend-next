@@ -221,7 +221,7 @@ function Media() {
   };
   // functions
   const handleGotoUploadMedia = () => {
-    Router.push("/admin/dashboard");
+    Router.push("/admin/upload_media");
   }
   // table variables
   const [order, setOrder] = React.useState("asc");

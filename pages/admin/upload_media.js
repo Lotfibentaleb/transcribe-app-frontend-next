@@ -2,14 +2,19 @@ import React, { useEffect, useState, useCallback } from "react";
 import Dropzone from 'react-dropzone';
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Button from '@material-ui/core/Button';
 // @material-ui/icons
-import ErrorOutline from "@material-ui/icons/ErrorOutline";
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import DeleteIcon from "@material-ui/icons/Delete";
 // layout for this page
 import Admin from "layouts/Admin.js";
 // core components
@@ -23,6 +28,12 @@ import uploadMediaAPI from "../../apis/upload-media";
 
 // styles
 const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '100%',
+  },
+  displayFlex: {
+    display: "flex"
+  },
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
       color: "rgba(255,255,255,.62)",
@@ -58,23 +69,23 @@ const useStyles = makeStyles((theme) => ({
   dropzoneContent: {
     width: "100%",
   },
-  errorOutline: {
+  ErrorOutlineIcon: {
     fontSize: "16px",
     marginLeft: "5px",
     marginTop: "-5px"
   },
   padding20: {
     padding: "20px 0"
+  },
+  circularProgress: {
+    fontSize: "20px"
+  },
+  spaceBetween: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between"
   }
 }));
-
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
-// stepper handlers
-function getSteps() {
-  return ['Upload File', 'Add Details', 'We Transcribe'];
-}
 
 function UploadMedia() {
   // styles
@@ -89,25 +100,69 @@ function UploadMedia() {
     }
     setOpenMessage(false);
   };
-
-  // steppers
-  const [activeStep, setActiveStep] = React.useState(0);
-  const steps = getSteps();
-
-  // dropzone
-  const [acceptedFiles, setAcceptedFiles] = useState([]);
-  const [progress, setProgress] = React.useState(0);
-
-  const addKeyInAcceptedFiles = (selectedFiles) => {
-    setAcceptedFiles(selectedFiles)    
+  const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
 
-  const callbackProgress = (progress) => {
-    if(progress > 99){
-      progress = 99;
+  // stepper variables and handlers
+  const [activeStep, setActiveStep] = React.useState(0);
+
+  const getSteps = () => {
+    return ['Upload File', 'Add Details', 'We Transcribe'];
+  }
+  const steps = getSteps();
+  // dropzone variables and handlers
+  const [acceptedFiles, setAcceptedFiles] = useState([]);
+
+  const addKeyInAcceptedFiles = (selectedFiles) => {
+    setAcceptedFiles(selectedFiles)
+  }
+
+  // progress variables and handlers
+  const [progress, setProgress] = React.useState([]);
+  const [total, setTotal] = React.useState([]);
+  const [loaded, setLoaded] = React.useState([]);
+  const [speed, setSpeed] = React.useState([]);
+  const [uploadState, setUploadState] = React.useState([]); // initial, loading, success, failure, 
+
+  var startTime = [];
+  const callbackProgress = (index, progressArray, totalArray, loadedArray, speedArray) => {
+    var tempArray = [];
+    progressArray.forEach(element => {
+      tempArray.push(element);
+    });
+    setProgress(tempArray);
+    tempArray = [];
+    totalArray.forEach(element => {
+      tempArray.push(element);
+    });
+    setTotal(tempArray);
+    tempArray = [];
+    loadedArray.forEach(element => {
+      tempArray.push(element)
+    });
+    setLoaded(tempArray);
+    tempArray = [];
+    speedArray.forEach(element => {
+      tempArray.push(element)
+    });
+    setSpeed(tempArray);
+  }
+
+  const handleRemoveFile = (event, acceptedFile) => {
+    var position = 0;
+    var tempArray = acceptedFiles;
+    console.log('length:', tempArray.length)
+    for (var i = 0; i < tempArray.length; i++) {
+      console.log("file name: ", acceptedFile.name)
+      console.log("temp name: ", tempArray[i].name)
+      if (acceptedFile.name === tempArray[i].name) {
+        position = i;
+        console.log('found position', position);
+        break;
+      }
     }
-    console.log('progress', progress)
-    setProgress(progress);
+    setAcceptedFiles(tempArray.splice(position, 1))
   }
 
   // initial method
@@ -119,20 +174,83 @@ function UploadMedia() {
   }, [acceptedFiles])
 
   const fileUpload = () => {
-    if(acceptedFiles.length !== 0) {
-      var fileUploadInfo = new FormData();
-      acceptedFiles.forEach((file) => {
-        fileUploadInfo.append('file', file);
-      });
-      uploadMediaAPI.upload(fileUploadInfo, callbackProgress)
-        .then(
-          response => {
-            console.log(response)
-          },
-          error => {
-            console.log(error)
-          }
-        )
+    let progresssArray = [];
+    let totalArray = [];
+    let loadedArray = [];
+    let speedArray = [];
+    let state = [];
+    for (var i = 0; i < acceptedFiles.length; i++) {
+      progresssArray.push(0);
+      totalArray.push(0);
+      loadedArray.push(0);
+      speedArray.push(0);
+      state.push('loading');
+    }
+    setUploadState(state);
+
+    for (var i = 0; i < acceptedFiles.length; i++) {
+      console.log("file upload function start");
+      startTime = new Date();
+      if (acceptedFiles.length !== 0) {
+        var fileUploadInfo = new FormData();
+        fileUploadInfo.append('file', acceptedFiles[i]);
+        uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
+          .then(
+            response => {
+              console.log(response);
+              if (response.message === 'failure') {
+                state[response.index] = 'failure'
+              } else {
+                state[i] = 'success'
+              }
+              var tempArray = [];
+              state.forEach(element => {
+                tempArray.push(element);
+              });
+              setUploadState(tempArray);
+            },
+            error => {
+              console.log(error)
+              setUploadState(state);
+            }
+          )
+      }
+    }
+  }
+
+  const renderCircularPorgress = () => {
+    for (var i = 0; i < uploadState.length; i++) {
+      if (uploadState[i] === 'initial') {
+        return null;
+
+      } else if (uploadState[i] === "loading") {
+        return <div className={classes.root}>
+          <Grid container>
+            <Grid item className={classes.displayFlex}>
+              <Box>
+                <CircularProgress size={14} color="secondary" />
+              </Box>
+              <Box ml={1}>
+                {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploading
+              </Box>
+            </Grid>
+          </Grid>
+        </div>
+      } else if (uploadState[i] === "failure") {
+        return <div className={classes.root}>
+          <Grid container>
+            <Grid item className={classes.displayFlex}>
+              <Box ml={1}>
+                Uploading Failure.
+              </Box>
+            </Grid>
+          </Grid>
+        </div>
+      } else {
+        return <Box ml={1}>
+          {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploaded
+        </Box>;
+      }
     }
   }
 
@@ -190,11 +308,11 @@ function UploadMedia() {
                           <h3><strong>Drag and drop additional audio/video file(s) here</strong></h3>
                           <Grid container alignItems="center">
                             <div>We accept most file formats</div>
-                            <ErrorOutline className={classes.errorOutline} />
-                            </Grid>
+                            <ErrorOutlineIcon className={classes.ErrorOutlineIcon} />
+                          </Grid>
                           <Grid container alignItems="center">
                             <div>Our max file size is 4GB</div>
-                            <ErrorOutline className={classes.errorOutline} />
+                            <ErrorOutlineIcon className={classes.ErrorOutlineIcon} />
                           </Grid>
                           <div><strong>{acceptedFiles.map((acceptedFile, index) => <div key={index}>{acceptedFile.path}</div>)}</strong></div>
                         </div>
@@ -205,7 +323,51 @@ function UploadMedia() {
               </Grid>
               {/* step 1 part */}
               <Grid item className={classes.padding20}>
-                Step 1: File
+                <div>Step 1: File</div>
+                <Grid container>
+                  {renderCircularPorgress()}
+                  {acceptedFiles.map((acceptedFile, index) => {
+                    return (
+                      <Grid container key={index}>
+                        <Grid item className={classes.root}>
+                          <div className={classes.root}>
+                            <Box pt={1}>
+                              {acceptedFile.name}
+                            </Box>
+                            <Box pt={1} pb={1}>
+                              {progress[index] !== undefined &&
+                                <LinearProgress size={50} className={classes.linearProgress} variant="determinate" value={progress[index]} />
+                              }
+
+                            </Box>
+                            <GridContainer justify="center">
+                              <GridItem item sm={12} md={12}>
+                                <div className={classes.spaceBetween}>
+                                  <Box pb={1}>
+                                    {
+                                      uploadState[index] === "loading" ? 'Uploading' : ''
+                                    }
+                                    {
+                                      uploadState[index] === "success" ? 'Uploading Success' : ''
+                                    }
+                                    {
+                                      uploadState[index] === "failure" ? 'Uploading Failure' : ''
+                                    }
+                                    ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)
+                                  </Box>
+                                  <Button variant="contained" color="secondary" size="small" onClick={(event) => handleRemoveFile(event, acceptedFile)}>
+                                    <DeleteIcon />
+                                    Remove
+                                  </Button>
+                                </div>
+                              </GridItem>
+                            </GridContainer>
+                          </div>
+                        </Grid>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
               </Grid>
               {/* step 2 part */}
               <Grid item className={classes.padding20}>

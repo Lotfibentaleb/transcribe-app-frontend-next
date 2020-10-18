@@ -1,5 +1,6 @@
-import axios from "axios"
+import axios from "axios";
 import getConfig from "next/config";
+import authHeader from "./auth-header";
 const { publicRuntimeConfig } = getConfig();
 
 const API_URL = publicRuntimeConfig.API_ENDPOINT;
@@ -33,7 +34,7 @@ class UploadMedia {
             callback(index, progressArray, totalArray, loadedArray, speedArray);
           }
         }
-      })
+      }, { headers: authHeader() })
       .then(
         response => {
           console.log('response', response)

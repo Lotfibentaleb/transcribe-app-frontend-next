@@ -1,5 +1,6 @@
 import axios from "axios"
 import getConfig from "next/config";
+import authHeader from "./auth-header";
 const { publicRuntimeConfig } = getConfig();
 
 const API_URL = publicRuntimeConfig.API_ENDPOINT;
@@ -7,7 +8,7 @@ const API_URL = publicRuntimeConfig.API_ENDPOINT;
 class User {
   users(signal) {
     return axios
-      .get(API_URL + "users", { signal: signal })
+      .get(API_URL + "users", { signal: signal }, { headers: authHeader() })
       .then(response => {
         return response.data;
       });
@@ -15,7 +16,7 @@ class User {
 
   addUser(userInfo) {
     return axios
-      .post(API_URL + "users/add", userInfo)
+      .post(API_URL + "users/add", userInfo, { headers: authHeader() })
       .then(
         response => {
           return response.data;
@@ -28,7 +29,7 @@ class User {
 
   deleteUser(id) {
     return axios
-      .get(API_URL + "users/delete/" + id)
+      .get(API_URL + "users/delete/" + id, { headers: authHeader() })
       .then(
         response => {
           return response.data;
@@ -41,7 +42,7 @@ class User {
 
   editUser(userInfo, id) {
     return axios
-      .post(API_URL + "users/edit/" + id, userInfo)
+      .post(API_URL + "users/edit/" + id, userInfo, { headers: authHeader() })
       .then(
         response => {
           return response.data;

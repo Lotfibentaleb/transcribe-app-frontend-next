@@ -24,10 +24,19 @@ import {
   DatePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import Tooltip from '@material-ui/core/Tooltip';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 // @material-ui/icons
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import MoreIcon from '@material-ui/icons/More';
 // layout for this page
 import Admin from "layouts/Admin.js";
 // core components
@@ -36,9 +45,8 @@ import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-
-import mediaData from "assets/data/media.json";
-
+// call api
+import mediaAPI from "../../apis/media";
 // styles
 const useStyles = makeStyles((theme) => ({
   cloudUploadIcon: {
@@ -104,19 +112,41 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: 20,
     width: 1
-  }
+  },
+  iconBtnTextPos: {
+    marginLeft: "10px"
+  },
+  notTranscirbed: {
+    display: "flex",
+    alignItems: "center",
+    color: '#f50057',
+    fontSize: "16px",
+    fontWeight: "700",
+    paddingRight: "20px"
+  },
+  transcribed: {
+    marginLeft: "10px"
+  },
+  transcirbed: {
+    display: "flex",
+    alignItems: "center",
+    color: '#3f51b4',
+    fontSize: "16px",
+    fontWeight: "700",
+    paddingRight: "20px"
+  },
 }));
 
 // table variables
 const headCells = [
   { id: 'id', label: 'ID' },
-  { id: 'media_file', label: 'Media File' },
+  { id: 'file_name', label: 'File Name' },
   { id: 'export_options', label: 'Export Options' },
-  { id: 'created_on', label: 'Created On' },
-  { id: 'finished_on', label: 'Finished On' },
+  { id: 'createdAt', label: 'Created At' },
+  { id: 'updatedAt', label: 'Updated At' },
   { id: 'metadata', label: 'Meta Data' },
   { id: 'credit_used', label: 'Credit Used' },
-  { id: 'status', label: 'Status' },
+  { id: 'transcribe_status', label: 'Status' },
   { id: 'action', label: 'Action' },
 ];
 // table functions
@@ -247,17 +277,48 @@ function Media() {
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
-  // handle edit media
-  const handleEditMedia = () => {
-    // add delete method
-  }
-
   // handle delete media
   const handleDeleteMedia = (event, id) => {
     if (confirm("Do you want to delete this media?")) {
-      // add delete method
+      mediaAPI.deleteMedia(id)
+        .then(
+          response => {
+            if (response.success === 'true') {
+              setMessageType("success")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setPage(0);
+              setRows(response.media_list)
+            } else {
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
+            }
+          },
+          error => {
+            setMessageType("error")
+            setMessage(error)
+            setOpenMessage(true);
+          }
+        )
     }
   }
+
+  // dialog variables and handle events
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [mediaInfo, setMediaInfo] = React.useState();
+  // handle show more media information
+  const handleShowMedia = (event, id) => {
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].id === id) {
+        setMediaInfo(rows[i]);
+      }
+    }
+    setOpenDialog(true);
+  }
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   // initial method
   useEffect(() => {
@@ -265,7 +326,17 @@ function Media() {
   }, [])
 
   const getMedias = () => {
-    setRows(mediaData)
+    mediaAPI.medias()
+      .then(
+        response => {
+          setRows(response.media_list)
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
+        }
+      )
   }
 
   return (
@@ -363,20 +434,40 @@ function Media() {
                                 >
                                   {row.id}
                                 </TableCell>
-                                <TableCell>{row.media_file}</TableCell>
+                                <TableCell>{row.file_name}</TableCell>
                                 <TableCell>{row.export_options}</TableCell>
-                                <TableCell>{row.created_on}</TableCell>
-                                <TableCell>{row.finished_on}</TableCell>
+                                <TableCell>{row.createdAt}</TableCell>
+                                <TableCell>{row.updatedAt}</TableCell>
                                 <TableCell>{row.metadata}</TableCell>
                                 <TableCell>{row.credit_used}</TableCell>
-                                <TableCell>{row.status}</TableCell>
+                                {/* <TableCell>{row.transcribe_status}</TableCell> */}
+                                <TableCell>
+                                  {
+                                    row.transcribe_status === 0 ?
+                                      <Tooltip title="Start Transcribe" arrow>
+                                        <IconButton variant="contained" color="secondary" className={classes.viewMediaButton}>
+                                          <RecordVoiceOverIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                      :
+                                      <Tooltip title="Preview Transcribe" arrow>
+                                        <IconButton variant="contained" color="primary" className={classes.viewMediaButton}>
+                                          <VisibilityIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                  }
+                                </TableCell>
                                 <TableCell align="center">
-                                  <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleEditMedia(event, row.id)}>
-                                    <EditIcon />
-                                  </IconButton>
-                                  <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleDeleteMedia(event, row.id)}>
-                                    <DeleteIcon />
-                                  </IconButton>
+                                  <Tooltip title="Show more media information" arrow>
+                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleShowMedia(event, row.id)}>
+                                      <MoreIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Delete current media" arrow>
+                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleDeleteMedia(event, row.id)}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </Tooltip>
                                 </TableCell>
                               </TableRow>
                             );
@@ -404,6 +495,116 @@ function Media() {
           </Card>
         </GridItem>
       </GridContainer>
+      {/* dialog part */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Media Information</DialogTitle>
+        <DialogContent>
+          {console.log(mediaInfo)}
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Media ID</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.id}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>User ID</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.userId}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Media Name</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.file_name}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>File Path</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.s3_url}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Created At</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.createdAt}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Updated At</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.updatedAt}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Meta Data</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.updatedAt}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Credit Used</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && mediaInfo.updatedAt}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Status</strong>
+            </Grid>
+            <Grid item md={8}>
+              {
+                mediaInfo !== undefined && mediaInfo.transcribe_status !== 0 ?
+                  <Grid container>
+                    <Grid item className={classes.notTranscirbed}>Not Transcribed</Grid>
+                    <Grid item>
+                      <Button variant="contained" color="secondary" size="small" className={classes.viewMediaButton}>
+                        <RecordVoiceOverIcon />
+                        <div className={classes.iconBtnTextPos}>Start Transcribe</div>
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  :
+                  <Grid container>
+                    <Grid item className={classes.transcirbed}>Transcribed</Grid>
+                    <Grid item>
+                      <Button variant="contained" color="primary" size="small" className={classes.viewMediaButton}>
+                        <VisibilityIcon />
+                        <div className={classes.iconBtnTextPos}>Preview Transcribe</div>
+                      </Button>
+                    </Grid>
+                  </Grid>
+              }
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

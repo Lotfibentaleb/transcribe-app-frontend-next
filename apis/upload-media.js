@@ -14,7 +14,7 @@ var isInitialLoading = true;
 class UploadMedia {
   upload(fileUploadInfo, callback, index, startTime, initialProgress, initialTotal, initialLoaded, initialSpeed) {
     return axios
-      .post(API_URL + "transcribe/upload", fileUploadInfo, {
+      .post(API_URL + "medias/upload", fileUploadInfo, {
         onUploadProgress: function processcallback(progressEvent) {
           var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           var currentTime = new Date();
@@ -37,12 +37,11 @@ class UploadMedia {
       }, { headers: authHeader() })
       .then(
         response => {
-          console.log('response', response)
           return response.data;
         },
         error => {
           console.log('error', error)
-          var json = '{"message":"failure", "index": ' + index + '}'
+          var json = '{"message":"failure", "index": ' + index + ', "error":' + error + '}'
           return JSON.parse(json);
         }
       )

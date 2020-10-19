@@ -125,7 +125,7 @@ function UploadMedia() {
   const [speed, setSpeed] = React.useState([]);
   const [uploadState, setUploadState] = React.useState([]); // initial, loading, success, failure, 
 
-  var startTime = [];
+  var startTime;
   const callbackProgress = (index, progressArray, totalArray, loadedArray, speedArray) => {
     var tempArray = [];
     progressArray.forEach(element => {
@@ -194,14 +194,15 @@ function UploadMedia() {
       if (acceptedFiles.length !== 0) {
         var fileUploadInfo = new FormData();
         fileUploadInfo.append('file', acceptedFiles[i]);
+        fileUploadInfo.append('index', i);
         uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
           .then(
             response => {
               console.log(response);
               if (response.message === 'failure') {
                 state[response.index] = 'failure'
-              } else {
-                state[i] = 'success'
+              } else if(response.message === 'success'){
+                state[response.index] = 'success'
               }
               var tempArray = [];
               state.forEach(element => {

@@ -396,18 +396,11 @@ function User() {
 
   // initial method
   useEffect(() => {
-    const abortController = new AbortController()
-    const signal = abortController.signal
-
-    getUsers(signal);
-
-    return function cleanup() {
-      abortController.abort()
-    }
+    getUsers();
   }, [])
 
-  const getUsers = (signal) => {
-    userAPI.users(signal)
+  const getUsers = () => {
+    userAPI.users()
       .then(
         response => {
           setRows(response.users)

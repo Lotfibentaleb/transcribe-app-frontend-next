@@ -12,9 +12,23 @@ import StepLabel from '@material-ui/core/StepLabel';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import IconButton from '@material-ui/core/IconButton';
 // @material-ui/icons
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import DeleteIcon from "@material-ui/icons/Delete";
+import RecordVoiceOverIcon from "@material-ui/icons/RecordVoiceOver";
+import {
+  IconFlagUS,
+  IconFlagUK,
+  IconFlagAU,
+  IconFlagFR,
+  IconFlagDE,
+  IconFlagES
+} from 'material-ui-flags';
 // layout for this page
 import Admin from "layouts/Admin.js";
 // core components
@@ -25,6 +39,7 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 // call api
 import uploadMediaAPI from "../../apis/upload-media";
+import { Typography } from "@material-ui/core";
 
 // styles
 const useStyles = makeStyles((theme) => ({
@@ -66,9 +81,6 @@ const useStyles = makeStyles((theme) => ({
     border: "4px dashed #3d58ec",
     padding: "10px 50px 40px 50px"
   },
-  dropzoneContent: {
-    width: "100%",
-  },
   ErrorOutlineIcon: {
     fontSize: "16px",
     marginLeft: "5px",
@@ -84,7 +96,30 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     display: "flex",
     justifyContent: "space-between"
-  }
+  },
+  stepTitle: {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#3f51b5",
+  },
+  uploading: {
+    fontWeight: '700',
+    color: '#3f51b5'
+  },
+  uploadSuccess: {
+    fontWeight: '700',
+    color: 'green'
+  },
+  uploadFailure: {
+    fontWeight: '700',
+    color: '#c51162'
+  },
+  formControl: {
+    minWidth: "240px"
+  },
+  iconBtnTextPos: {
+    marginLeft: "10px"
+  },
 }));
 
 function UploadMedia() {
@@ -152,22 +187,29 @@ function UploadMedia() {
   const handleRemoveFile = (event, acceptedFile) => {
     var position = 0;
     var tempArray = acceptedFiles;
-    console.log('length:', tempArray.length)
     for (var i = 0; i < tempArray.length; i++) {
-      console.log("file name: ", acceptedFile.name)
-      console.log("temp name: ", tempArray[i].name)
       if (acceptedFile.name === tempArray[i].name) {
         position = i;
-        console.log('found position', position);
         break;
       }
     }
     setAcceptedFiles(tempArray.splice(position, 1))
   }
 
+  // spoken language select component
+  const [spokenLanguage, setSpokenLanguage] = React.useState("en");
+  const handleChangeLanguage = (event) => {
+    setSpokenLanguage(event.target.value);
+  };
+
+  // transcribe handler
+  const handleTranscribeStart = () => {
+    alert("transcribing is starting!")
+  }
   // initial method
   useEffect(() => {
-  }, [])
+    addDetails();
+  }, [uploadState])
 
   useEffect(() => {
     fileUpload();
@@ -189,7 +231,6 @@ function UploadMedia() {
     setUploadState(state);
 
     for (var i = 0; i < acceptedFiles.length; i++) {
-      console.log("file upload function start");
       startTime = new Date();
       if (acceptedFiles.length !== 0) {
         var fileUploadInfo = new FormData();
@@ -198,10 +239,9 @@ function UploadMedia() {
         uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
           .then(
             response => {
-              console.log(response);
               if (response.message === 'failure') {
                 state[response.index] = 'failure'
-              } else if(response.message === 'success'){
+              } else if (response.message === 'success') {
                 state[response.index] = 'success'
               }
               var tempArray = [];
@@ -216,6 +256,19 @@ function UploadMedia() {
             }
           )
       }
+    }
+  }
+
+  const addDetails = () => {
+    let count = 0;
+    for (var i = 0; i < uploadState.length; i++) {
+      if (uploadState[i] === 'success') {
+        count++;
+      }
+    }
+    if (count === uploadState.length && count !== 0) {
+      alert("All files are uploaded successfully!");
+      setActiveStep(1);
     }
   }
 
@@ -304,15 +357,15 @@ function UploadMedia() {
                   {({ getRootProps, getInputProps }) => (
                     <section>
                       <div className={classes.dropzone} {...getRootProps()}>
-                        <div className={classes.dropzoneContent}>
+                        <div className={classes.root}>
                           <input {...getInputProps()} />
                           <h3><strong>Drag and drop additional audio/video file(s) here</strong></h3>
                           <Grid container alignItems="center">
-                            <div>We accept most file formats</div>
+                            <Typography>We accept most file formats</Typography>
                             <ErrorOutlineIcon className={classes.ErrorOutlineIcon} />
                           </Grid>
                           <Grid container alignItems="center">
-                            <div>Our max file size is 4GB</div>
+                            <Typography>Our max file size is 4GB</Typography>
                             <ErrorOutlineIcon className={classes.ErrorOutlineIcon} />
                           </Grid>
                           <div><strong>{acceptedFiles.map((acceptedFile, index) => <div key={index}>{acceptedFile.path}</div>)}</strong></div>
@@ -324,7 +377,7 @@ function UploadMedia() {
               </Grid>
               {/* step 1 part */}
               <Grid item className={classes.padding20}>
-                <div>Step 1: File</div>
+                <div className={classes.stepTitle}>Step 1: Media Upload</div>
                 <Grid container>
                   {renderCircularPorgress()}
                   {acceptedFiles.map((acceptedFile, index) => {
@@ -332,33 +385,53 @@ function UploadMedia() {
                       <Grid container key={index}>
                         <Grid item className={classes.root}>
                           <div className={classes.root}>
-                            <Box pt={1}>
-                              {acceptedFile.name}
-                            </Box>
+                            {
+                              uploadState[index] === "loading" ?
+                                <Box pt={1} className={classes.uploading}>
+                                  {acceptedFile.name}
+                                </Box> : ''
+                            }
+                            {
+                              uploadState[index] === "success" ?
+                                <Box pt={1} className={classes.uploadSuccess}>
+                                  {acceptedFile.name}
+                                </Box> : ''
+                            }
+                            {
+                              uploadState[index] === "failure" ?
+                                <Box pt={1} className={classes.uploadFailure}>
+                                  {acceptedFile.name}
+                                </Box> : ''
+                            }
                             <Box pt={1} pb={1}>
                               {progress[index] !== undefined &&
                                 <LinearProgress size={50} className={classes.linearProgress} variant="determinate" value={progress[index]} />
                               }
-
                             </Box>
                             <GridContainer justify="center">
                               <GridItem item sm={12} md={12}>
                                 <div className={classes.spaceBetween}>
-                                  <Box pb={1}>
-                                    {
-                                      uploadState[index] === "loading" ? 'Uploading' : ''
-                                    }
-                                    {
-                                      uploadState[index] === "success" ? 'Uploading Success' : ''
-                                    }
-                                    {
-                                      uploadState[index] === "failure" ? 'Uploading Failure' : ''
-                                    }
-                                    ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)
-                                  </Box>
+                                  {
+                                    uploadState[index] === "loading" ?
+                                      <Box pb={1} className={classes.uploading}>
+                                        <Typography>Uploading ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
+                                      </Box> : ''
+                                  }
+                                  {
+                                    uploadState[index] === "success" ?
+                                      <Box pb={1} className={classes.uploadSuccess}>
+                                        <Typography>Upload Success ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
+                                      </Box> : ''
+                                  }
+                                  {
+                                    uploadState[index] === "failure" ?
+                                      <Box pb={1} className={classes.uploadFailure}>
+                                        <Typography>Upload Failure ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
+                                      </Box> : ''
+                                  }
                                   <Button variant="contained" color="secondary" size="small" onClick={(event) => handleRemoveFile(event, acceptedFile)}>
                                     <DeleteIcon />
-                                    Remove
+                                    <Typography>Remove</Typography>
                                   </Button>
                                 </div>
                               </GridItem>
@@ -372,11 +445,43 @@ function UploadMedia() {
               </Grid>
               {/* step 2 part */}
               <Grid item className={classes.padding20}>
-                Step 2: Details
-              </Grid>
-              {/* step 3 part */}
-              <Grid item className={classes.padding20}>
-                Step 3: Transcirbe
+                <div className={classes.stepTitle}>Step 2: Details</div>
+                <Grid container>
+                  <Grid item>
+                    <FormControl className={classes.formControl}>
+                      <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
+                      <Select
+                        labelId="demo-customized-select-label"
+                        id="demo-customized-select"
+                        value={spokenLanguage}
+                        onChange={handleChangeLanguage}
+                      >
+                        <MenuItem value="en">
+                          <Typography>English</Typography>
+                          <IconButton><IconFlagUS /></IconButton>
+                          <IconButton><IconFlagUK /></IconButton>
+                          <IconButton><IconFlagAU /></IconButton>
+                        </MenuItem>
+                        <MenuItem value="fr">
+                          <Typography>French</Typography>
+                          <IconButton><IconFlagFR /></IconButton>
+                        </MenuItem>
+                        <MenuItem value="de">
+                          <Typography>German</Typography>
+                          <IconButton><IconFlagDE /></IconButton>
+                        </MenuItem>
+                        <MenuItem value="es">
+                          <Typography>Spanish</Typography>
+                          <IconButton><IconFlagES /></IconButton>
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Button variant="contained" color="primary" size="large" onClick={(event) => handleTranscribeStart()}>
+                  <RecordVoiceOverIcon />
+                  <Typography className={classes.iconBtnTextPos}>Start Transcribing Now</Typography>
+                </Button>
               </Grid>
             </CardBody>
           </Card>

@@ -21,6 +21,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import DeleteIcon from "@material-ui/icons/Delete";
 import RecordVoiceOverIcon from "@material-ui/icons/RecordVoiceOver";
+import { Typography } from "@material-ui/core";
 import {
   IconFlagUS,
   IconFlagUK,
@@ -39,7 +40,7 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 // call api
 import uploadMediaAPI from "../../apis/upload-media";
-import { Typography } from "@material-ui/core";
+import transcribeAPI from "../../apis/transcribe";
 
 // styles
 const useStyles = makeStyles((theme) => ({
@@ -122,6 +123,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+function getJSONP(url, success) {
+
+  var req = new XMLHttpRequest();
+  req.open('GET', url, false);
+  req.send(null);
+  // console.log(req.responseText);
+  return req.responseText;
+}
+
 function UploadMedia() {
   // styles
   const classes = useStyles();
@@ -143,11 +154,16 @@ function UploadMedia() {
   const [activeStep, setActiveStep] = React.useState(0);
 
   const getSteps = () => {
-    return ['Upload File', 'Add Details', 'We Transcribe'];
+    return ['Upload File', 'Add Details', 'Transcribe'];
   }
   const steps = getSteps();
   // dropzone variables and handlers
   const [acceptedFiles, setAcceptedFiles] = useState([]);
+  // uploaded file informatin
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  // transcribed file informatin
+  const [transcribedFiles, setTranscribedFiles] = useState([]);
+  const [transcribState, setTranscribState] = useState([]);
 
   const addKeyInAcceptedFiles = (selectedFiles) => {
     setAcceptedFiles(selectedFiles)
@@ -197,23 +213,65 @@ function UploadMedia() {
   }
 
   // spoken language select component
-  const [spokenLanguage, setSpokenLanguage] = React.useState("en");
+  const [spokenLanguage, setSpokenLanguage] = React.useState("en-US");
   const handleChangeLanguage = (event) => {
     setSpokenLanguage(event.target.value);
   };
 
   // transcribe handler
   const handleTranscribeStart = () => {
-    alert("transcribing is starting!")
+    let state = [];
+    let transcribedArray = [];
+    for (var i = 0; i < uploadedFiles.length; i++) {
+      state.push('transcribing');
+      transcribState.push([]);
+    }
+    setTranscribState(state);
+    setActiveStep(2);
+    for (var i = 0; i < uploadedFiles.length; i++) {
+      transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage)
+        .then(
+          response => {
+            if (response.success === 'false') {
+              state[response.index] = 'failure'
+            } else if (response.success === 'true') {
+              state[response.index] = 'success'
+            }
+            transcribedArray.push(response);
+            var tempArray = [];
+            state.forEach(element => {
+              tempArray.push(element);
+            });
+            setTranscribState(tempArray);
+            if (i === (uploadedFiles.length)) {
+              setTranscribedFiles(transcribedArray);
+              for (var j = 0; j < transcribedArray.length; j++) {
+                var data = getJSONP(transcribedArray[j].transcribe_url)
+                transcribedArray[j].transcript = JSON.parse(data).results.transcripts[0].transcript;
+              }
+              setTranscribedFiles(transcribedArray)
+            }
+          },
+          error => {
+            console.log(error)
+            setTranscribState(state);
+          }
+        )
+    }
+
   }
   // initial method
+  useEffect(() => {
+    fileUpload();
+  }, [acceptedFiles])
+
   useEffect(() => {
     addDetails();
   }, [uploadState])
 
   useEffect(() => {
-    fileUpload();
-  }, [acceptedFiles])
+  }, [transcribedFiles])
+
 
   const fileUpload = () => {
     let progresssArray = [];
@@ -221,6 +279,7 @@ function UploadMedia() {
     let loadedArray = [];
     let speedArray = [];
     let state = [];
+    let uploadedArray = [];
     for (var i = 0; i < acceptedFiles.length; i++) {
       progresssArray.push(0);
       totalArray.push(0);
@@ -239,11 +298,12 @@ function UploadMedia() {
         uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
           .then(
             response => {
-              if (response.message === 'failure') {
+              if (response.success === 'false') {
                 state[response.index] = 'failure'
-              } else if (response.message === 'success') {
+              } else if (response.success === 'true') {
                 state[response.index] = 'success'
               }
+              uploadedArray.push(response);
               var tempArray = [];
               state.forEach(element => {
                 tempArray.push(element);
@@ -257,6 +317,7 @@ function UploadMedia() {
           )
       }
     }
+    setUploadedFiles(uploadedArray);
   }
 
   const addDetails = () => {
@@ -267,10 +328,13 @@ function UploadMedia() {
       }
     }
     if (count === uploadState.length && count !== 0) {
-      alert("All files are uploaded successfully!");
+      setMessageType("success");
+      setMessage("All files are uploaded successfully!");
+      setOpenMessage(true);
       setActiveStep(1);
     }
   }
+
 
   const renderCircularPorgress = () => {
     for (var i = 0; i < uploadState.length; i++) {
@@ -444,45 +508,81 @@ function UploadMedia() {
                 </Grid>
               </Grid>
               {/* step 2 part */}
-              <Grid item className={classes.padding20}>
-                <div className={classes.stepTitle}>Step 2: Details</div>
-                <Grid container>
-                  <Grid item>
-                    <FormControl className={classes.formControl}>
-                      <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
-                      <Select
-                        labelId="demo-customized-select-label"
-                        id="demo-customized-select"
-                        value={spokenLanguage}
-                        onChange={handleChangeLanguage}
-                      >
-                        <MenuItem value="en">
-                          <Typography>English</Typography>
-                          <IconButton><IconFlagUS /></IconButton>
-                          <IconButton><IconFlagUK /></IconButton>
-                          <IconButton><IconFlagAU /></IconButton>
-                        </MenuItem>
-                        <MenuItem value="fr">
-                          <Typography>French</Typography>
-                          <IconButton><IconFlagFR /></IconButton>
-                        </MenuItem>
-                        <MenuItem value="de">
-                          <Typography>German</Typography>
-                          <IconButton><IconFlagDE /></IconButton>
-                        </MenuItem>
-                        <MenuItem value="es">
-                          <Typography>Spanish</Typography>
-                          <IconButton><IconFlagES /></IconButton>
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
+              {
+                activeStep === 1 || activeStep === 2 ?
+                  <Grid item className={classes.padding20}>
+                    <div className={classes.stepTitle}>Step 2: Details</div>
+                    <Grid container>
+                      <Grid item>
+                        <FormControl className={classes.formControl}>
+                          <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
+                          <Select
+                            labelId="demo-customized-select-label"
+                            id="demo-customized-select"
+                            value={spokenLanguage}
+                            onChange={handleChangeLanguage}
+                          >
+                            <MenuItem value="en-US">
+                              English
+                              <IconButton><IconFlagUS /></IconButton>
+                              <IconButton><IconFlagUK /></IconButton>
+                              <IconButton><IconFlagAU /></IconButton>
+                            </MenuItem>
+                            <MenuItem value="fr">
+                              French
+                              <IconButton><IconFlagFR /></IconButton>
+                            </MenuItem>
+                            <MenuItem value="de">
+                              German
+                              <IconButton><IconFlagDE /></IconButton>
+                            </MenuItem>
+                            <MenuItem value="es">
+                              Spanish
+                              <IconButton><IconFlagES /></IconButton>
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    </Grid>
+                    <Button variant="contained" color="primary" size="large" onClick={(event) => handleTranscribeStart()}>
+                      <RecordVoiceOverIcon />
+                      <Typography className={classes.iconBtnTextPos}>Start Transcribing Now</Typography>
+                    </Button>
                   </Grid>
-                </Grid>
-                <Button variant="contained" color="primary" size="large" onClick={(event) => handleTranscribeStart()}>
-                  <RecordVoiceOverIcon />
-                  <Typography className={classes.iconBtnTextPos}>Start Transcribing Now</Typography>
-                </Button>
-              </Grid>
+                  :
+                  ''
+              }
+              {/* step 3 part */}
+              {
+                activeStep === 2 ?
+                  <Grid item className={classes.padding20}>
+                    <div className={classes.stepTitle}>Step 3: Transcribe</div>
+                    <Grid container>
+                      <Grid item>
+                        {transcribedFiles.map((transcribedFile, index) => {
+                          return (
+                            <div key={index}>
+                              <Box pt={1}>
+                                <Button variant="contained" color="secondary" size="small" >
+                                  <Typography className={classes.iconBtnTextPos}>View Content of {transcribedFile.file_name}</Typography>
+                                </Button>
+                              </Box>
+                              <Box pt={1}>
+                                <div>
+                                  {
+                                    transcribedFile.transcript !== undefined && transcribedFile.transcript
+                                  }
+                                </div>
+                              </Box>
+                            </div>
+                          );
+                        })}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  :
+                  ''
+              }
             </CardBody>
           </Card>
         </GridItem>

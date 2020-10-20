@@ -34,14 +34,14 @@ class UploadMedia {
             callback(index, progressArray, totalArray, loadedArray, speedArray);
           }
         }
-      }, { headers: authHeader() })
+      })
       .then(
         response => {
           return response.data;
         },
         error => {
           console.log('error', error)
-          var json = '{"message":"failure", "index": ' + index + ', "error":' + error + '}'
+          var json = '{"msg":"failure", "index": ' + index + ', "error":' + error + '}'
           return JSON.parse(json);
         }
       )

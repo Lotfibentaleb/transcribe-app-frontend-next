@@ -50,6 +50,9 @@ const useStyles = makeStyles((theme) => ({
   displayFlex: {
     display: "flex"
   },
+  cardBody: {
+    paddingBottom: "50px"
+  },
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
       color: "rgba(255,255,255,.62)",
@@ -124,13 +127,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function getJSONP(url, success) {
-
-  var req = new XMLHttpRequest();
-  req.open('GET', url, false);
-  req.send(null);
-  return req.responseText;
-}
 
 function UploadMedia() {
   // styles
@@ -156,27 +152,21 @@ function UploadMedia() {
     return ['Upload File', 'Add Details', 'Transcribe'];
   }
   const steps = getSteps();
+
   // dropzone variables and handlers
   const [acceptedFiles, setAcceptedFiles] = useState([]);
-  // uploaded file informatin
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  // transcribed file information
-  const [transcribedFiles, setTranscribedFiles] = useState([]);
-  const [transcribeStates, setTranscribeStates] = useState([]);
-  const [allTranscribeState, setAllTranscribeState] = useState('success');
-
   const addKeyInAcceptedFiles = (selectedFiles) => {
     setAcceptedFiles(selectedFiles)
   }
 
-  // progress variables and handlers
+  // upload progress variables and handlers
   const [progress, setProgress] = React.useState([]);
   const [total, setTotal] = React.useState([]);
   const [loaded, setLoaded] = React.useState([]);
   const [speed, setSpeed] = React.useState([]);
-  const [uploadState, setUploadState] = React.useState([]); // initial, loading, success, failure, 
+  const [uploadStates, setUploadStates] = React.useState([]); // initial, loading, success, failure, 
+  const [allUploadState, setAllUploadState] = React.useState('initial'); // initial, loading, success, failure, 
 
-  var startTime;
   const callbackProgress = (index, progressArray, totalArray, loadedArray, speedArray) => {
     var tempArray = [];
     progressArray.forEach(element => {
@@ -201,16 +191,23 @@ function UploadMedia() {
   }
 
   const handleRemoveFile = (event, acceptedFile) => {
-    var position = 0;
-    var tempArray = acceptedFiles;
-    for (var i = 0; i < tempArray.length; i++) {
-      if (acceptedFile.name === tempArray[i].name) {
-        position = i;
-        break;
+    console.log('acceptedFile', acceptedFile)
+    var tempArray = [];
+    for (var i = 0; i < acceptedFiles.length; i++) {
+      if (acceptedFile.name !== acceptedFiles[i].name) {
+        tempArray.push(acceptedFiles[i]);
       }
     }
-    setAcceptedFiles(tempArray.splice(position, 1))
+    console.log('tempArray', tempArray);
+    setAcceptedFiles(tempArray)
   }
+
+  // uploaded file information
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  // transcribed file information
+  const [transcribedFiles, setTranscribedFiles] = useState([]);
+  const [transcribeStates, setTranscribeStates] = useState([]);
+  const [allTranscribeState, setAllTranscribeState] = useState('success');
 
   // spoken language select component
   const [spokenLanguage, setSpokenLanguage] = React.useState("en-US");
@@ -255,14 +252,15 @@ function UploadMedia() {
     }
 
   }
+
   // useEffect method
   useEffect(() => {
     fileUpload();
   }, [acceptedFiles])
 
   useEffect(() => {
-    addDetails();
-  }, [uploadState])
+    changeAllUploadState();
+  }, [uploadStates])
 
   useEffect(() => {
     changeAllTranscribeState();
@@ -270,6 +268,7 @@ function UploadMedia() {
 
   // file upload handler
   const fileUpload = () => {
+    var startTime;
     let progresssArray = [];
     let totalArray = [];
     let loadedArray = [];
@@ -283,8 +282,11 @@ function UploadMedia() {
       speedArray.push(0);
       state.push('loading');
     }
-    setUploadState(state);
-
+    console.log("acceptedfiles length", acceptedFiles.length);
+    setUploadStates(state);
+    if (acceptedFiles.length !== 0) {
+      setAllUploadState("loading");
+    }
     for (var i = 0; i < acceptedFiles.length; i++) {
       startTime = new Date();
       if (acceptedFiles.length !== 0) {
@@ -304,11 +306,11 @@ function UploadMedia() {
               state.forEach(element => {
                 tempArray.push(element);
               });
-              setUploadState(tempArray);
+              setUploadStates(tempArray);
             },
             error => {
               console.log(error)
-              setUploadState(state);
+              setUploadStates(state);
             }
           )
       }
@@ -316,15 +318,16 @@ function UploadMedia() {
     setUploadedFiles(uploadedArray);
   }
 
-  const addDetails = () => {
+  const changeAllUploadState = () => {
     let count = 0;
-    for (var i = 0; i < uploadState.length; i++) {
-      if (uploadState[i] === 'success') {
+    for (var i = 0; i < uploadStates.length; i++) {
+      if (uploadStates[i] === 'success') {
         count++;
       }
     }
-    if (count === uploadState.length && count !== 0) {
+    if (count === uploadStates.length && count !== 0) {
       setMessageType("success");
+      setAllUploadState("success");
       setMessage("All files are uploaded successfully!");
       setOpenMessage(true);
       setActiveStep(1);
@@ -343,39 +346,45 @@ function UploadMedia() {
     }
   }
 
-  const renderCircularPorgress = () => {
-    for (var i = 0; i < uploadState.length; i++) {
-      if (uploadState[i] === 'initial') {
-        return null;
-      } else if (uploadState[i] === "loading") {
-        return <div className={classes.root}>
-          <Grid container>
-            <Grid item className={classes.displayFlex}>
-              <Box>
-                <CircularProgress size={14} color="secondary" />
+  const renderUploadStateCircularProgress = () => {
+    if (allUploadState === 'initial') {
+      return null;
+    } else if (allUploadState === 'loading') {
+      return <div className={classes.root}>
+        <Grid container>
+          <Grid item className={classes.displayFlex}>
+            <Box pt={1}>
+              <CircularProgress size={14} color="secondary" />
+            </Box>
+            <Box ml={1} pt={1} className={classes.uploading}>
+              {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploading
               </Box>
-              <Box ml={1}>
-                {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploading
-              </Box>
-            </Grid>
           </Grid>
-        </div>
-      } else if (uploadState[i] === "failure") {
-        return <div className={classes.root}>
-          <Grid container>
-            <Grid item className={classes.displayFlex}>
-              <Box ml={1}>
-                Uploading Failure.
+        </Grid>
+      </div>
+    } else if (allUploadState === 'failure') {
+      return <div className={classes.root}>
+        <Grid container>
+          <Grid item className={classes.displayFlex}>
+            <Box pt={1} className={classes.uploadFailure}>
+              Uploading Failure.
               </Box>
-            </Grid>
           </Grid>
-        </div>
-      } else {
-        return <Box ml={1}>
-          {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploaded
-        </Box>;
-      }
+        </Grid>
+      </div>
+    } else if (allUploadState === 'success') {
+      return <Box pt={1} className={classes.uploadSuccess}>
+        {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploaded
+      </Box>;
     }
+  }
+
+  // common javascript functions
+  const getJSONP = (url, success) => {
+    var req = new XMLHttpRequest();
+    req.open('GET', url, false);
+    req.send(null);
+    return req.responseText;
   }
 
   return (
@@ -404,7 +413,7 @@ function UploadMedia() {
                 This is a subscription page.
               </p>
             </CardHeader>
-            <CardBody>
+            <CardBody className={classes.cardBody}>
               {/* Stepper part */}
               <Grid item sm={12} md={10} lg={6}>
                 <Stepper activeStep={activeStep}>
@@ -449,26 +458,26 @@ function UploadMedia() {
               <Grid item className={classes.padding20}>
                 <div className={classes.stepTitle}>Step 1: Media Upload</div>
                 <Grid container>
-                  {renderCircularPorgress()}
+                  {renderUploadStateCircularProgress()}
                   {acceptedFiles.map((acceptedFile, index) => {
                     return (
                       <Grid container key={index}>
                         <Grid item className={classes.root}>
                           <div className={classes.root}>
                             {
-                              uploadState[index] === "loading" ?
+                              uploadStates[index] === "loading" ?
                                 <Box pt={1} className={classes.uploading}>
                                   {acceptedFile.name}
                                 </Box> : ''
                             }
                             {
-                              uploadState[index] === "success" ?
+                              uploadStates[index] === "success" ?
                                 <Box pt={1} className={classes.uploadSuccess}>
                                   {acceptedFile.name}
                                 </Box> : ''
                             }
                             {
-                              uploadState[index] === "failure" ?
+                              uploadStates[index] === "failure" ?
                                 <Box pt={1} className={classes.uploadFailure}>
                                   {acceptedFile.name}
                                 </Box> : ''
@@ -482,27 +491,27 @@ function UploadMedia() {
                               <GridItem item sm={12} md={12}>
                                 <div className={classes.spaceBetween}>
                                   {
-                                    uploadState[index] === "loading" ?
+                                    uploadStates[index] === "loading" ?
                                       <Box pb={1} className={classes.uploading}>
                                         <Typography>Uploading ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
                                       </Box> : ''
                                   }
                                   {
-                                    uploadState[index] === "success" ?
+                                    uploadStates[index] === "success" ?
                                       <Box pb={1} className={classes.uploadSuccess}>
                                         <Typography>Upload Success ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
                                       </Box> : ''
                                   }
                                   {
-                                    uploadState[index] === "failure" ?
+                                    uploadStates[index] === "failure" ?
                                       <Box pb={1} className={classes.uploadFailure}>
                                         <Typography>Upload Failure ({total[index] !== undefined && total[index].toFixed(2)}MB/{loaded[index] !== undefined && loaded[index].toFixed(2)}MB at {speed[index] !== undefined && speed[index].toFixed(2)}MB/s)</Typography>
                                       </Box> : ''
                                   }
-                                  <Button variant="contained" color="secondary" size="small" onClick={(event) => handleRemoveFile(event, acceptedFile)}>
+                                  {/* <Button variant="contained" color="secondary" size="small" onClick={(event) => handleRemoveFile(event, acceptedFile)}>
                                     <DeleteIcon />
                                     <Typography>Remove</Typography>
-                                  </Button>
+                                  </Button> */}
                                 </div>
                               </GridItem>
                             </GridContainer>

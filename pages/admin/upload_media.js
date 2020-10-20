@@ -129,7 +129,6 @@ function getJSONP(url, success) {
   var req = new XMLHttpRequest();
   req.open('GET', url, false);
   req.send(null);
-  // console.log(req.responseText);
   return req.responseText;
 }
 
@@ -161,9 +160,10 @@ function UploadMedia() {
   const [acceptedFiles, setAcceptedFiles] = useState([]);
   // uploaded file informatin
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  // transcribed file informatin
+  // transcribed file information
   const [transcribedFiles, setTranscribedFiles] = useState([]);
-  const [transcribState, setTranscribState] = useState([]);
+  const [transcribeStates, setTranscribeStates] = useState([]);
+  const [allTranscribeState, setAllTranscribeState] = useState('success');
 
   const addKeyInAcceptedFiles = (selectedFiles) => {
     setAcceptedFiles(selectedFiles)
@@ -221,12 +221,12 @@ function UploadMedia() {
   // transcribe handler
   const handleTranscribeStart = () => {
     let state = [];
-    let transcribedArray = [];
+    setTranscribedFiles([]);
     for (var i = 0; i < uploadedFiles.length; i++) {
       state.push('transcribing');
-      transcribState.push([]);
     }
-    setTranscribState(state);
+    setTranscribeStates(state);
+    setAllTranscribeState('transcribing');
     setActiveStep(2);
     for (var i = 0; i < uploadedFiles.length; i++) {
       transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage)
@@ -237,30 +237,25 @@ function UploadMedia() {
             } else if (response.success === 'true') {
               state[response.index] = 'success'
             }
-            transcribedArray.push(response);
             var tempArray = [];
             state.forEach(element => {
               tempArray.push(element);
             });
-            setTranscribState(tempArray);
-            if (i === (uploadedFiles.length)) {
-              setTranscribedFiles(transcribedArray);
-              for (var j = 0; j < transcribedArray.length; j++) {
-                var data = getJSONP(transcribedArray[j].transcribe_url)
-                transcribedArray[j].transcript = JSON.parse(data).results.transcripts[0].transcript;
-              }
-              setTranscribedFiles(transcribedArray)
-            }
+            setTranscribeStates(tempArray);
+            let copiedResponse = response;
+            var data = getJSONP(copiedResponse.transcribe_url)
+            copiedResponse.transcript = JSON.parse(data).results.transcripts[0].transcript;
+            setTranscribedFiles(transcribedFiles => [...transcribedFiles, copiedResponse]);
           },
           error => {
             console.log(error)
-            setTranscribState(state);
+            setTranscribeStates(state);
           }
         )
     }
 
   }
-  // initial method
+  // useEffect method
   useEffect(() => {
     fileUpload();
   }, [acceptedFiles])
@@ -270,9 +265,10 @@ function UploadMedia() {
   }, [uploadState])
 
   useEffect(() => {
-  }, [transcribedFiles])
+    changeAllTranscribeState();
+  }, [transcribeStates])
 
-
+  // file upload handler
   const fileUpload = () => {
     let progresssArray = [];
     let totalArray = [];
@@ -335,12 +331,22 @@ function UploadMedia() {
     }
   }
 
+  const changeAllTranscribeState = () => {
+    var count = 0;
+    for (var i = 0; i < transcribeStates.length; i++) {
+      if (transcribeStates[i] === 'transcribing') {
+        count++;
+      }
+    }
+    if (count === 0) {
+      setAllTranscribeState('success');
+    }
+  }
 
   const renderCircularPorgress = () => {
     for (var i = 0; i < uploadState.length; i++) {
       if (uploadState[i] === 'initial') {
         return null;
-
       } else if (uploadState[i] === "loading") {
         return <div className={classes.root}>
           <Grid container>
@@ -559,6 +565,14 @@ function UploadMedia() {
                     <div className={classes.stepTitle}>Step 3: Transcribe</div>
                     <Grid container>
                       <Grid item>
+                        {
+                          allTranscribeState === 'transcribing' ?
+                            <div>
+                              <CircularProgress size={14} color="secondary" /> {transcribeStates.length}Files are transcribing
+                            </div>
+                            :
+                            ''
+                        }
                         {transcribedFiles.map((transcribedFile, index) => {
                           return (
                             <div key={index}>

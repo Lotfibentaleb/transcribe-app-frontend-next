@@ -7,15 +7,19 @@ const API_URL = publicRuntimeConfig.API_ENDPOINT;
 
 class Transcribe {
   transcribe (s3_url, mediaId) {
+    var jsonObj = {s3_url : "", lang: ""}
+    jsonObj.s3_url = s3_url;
+    jsonObj.lang = "en-US";
+    jsonObj.index = 0;
     return axios
-      .post(API_URL + "transcribe/" + mediaId, s3_url)
+      .post(API_URL + "transcribe/" + mediaId, jsonObj)
       .then(
         response => {
           return response.data;
         },
         error => {
           console.log('error', error)
-          var json = '{"msg":"S3 upload failure", "success": "false", "index": ' + index + ', "error":' + error + '}';
+          var json = '{"msg":"S3 upload failure", "success": "false", "index": 0, "error":' + error + '}';
           return JSON.parse(json);
         }
       )

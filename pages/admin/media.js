@@ -3,6 +3,7 @@ import Router from "next/router";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
@@ -21,18 +22,16 @@ import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  DatePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import Tooltip from '@material-ui/core/Tooltip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 // @material-ui/icons
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import EditIcon from '@material-ui/icons/Edit';
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import DeleteIcon from '@material-ui/icons/Delete';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -47,14 +46,12 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 // call api
 import mediaAPI from "../../apis/media";
+import transcribeAPI from "../../apis/transcribe";
+// pdf convert module
+import { jsPDF } from "jspdf";
+
 // styles
 const useStyles = makeStyles((theme) => ({
-  cloudUploadIcon: {
-    paddingRight: "10px",
-  },
-  cloudUploadButton: {
-    marginBottom: "10px",
-  },
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
       color: "rgba(255,255,255,.62)",
@@ -116,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
   iconBtnTextPos: {
     marginLeft: "10px"
   },
-  notTranscirbed: {
+  notTranscribed: {
     display: "flex",
     alignItems: "center",
     color: '#f50057',
@@ -125,9 +122,6 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: "20px"
   },
   transcribed: {
-    marginLeft: "10px"
-  },
-  transcirbed: {
     display: "flex",
     alignItems: "center",
     color: '#3f51b4',
@@ -140,12 +134,13 @@ const useStyles = makeStyles((theme) => ({
 // table variables
 const headCells = [
   { id: 'id', label: 'ID' },
+  { id: 'user_name', label: 'User Name' },
   { id: 'file_name', label: 'File Name' },
-  { id: 'export_options', label: 'Export Options' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'updatedAt', label: 'Updated At' },
+  { id: 'file_size', label: 'File Size' },
+  { id: 'duration', label: 'Duration' },
   { id: 'metadata', label: 'Meta Data' },
-  { id: 'credit_used', label: 'Credit Used' },
   { id: 'transcribe_status', label: 'Status' },
   { id: 'action', label: 'Action' },
 ];
@@ -280,6 +275,7 @@ function Media() {
   // handle delete media
   const handleDeleteMedia = (event, id) => {
     if (confirm("Do you want to delete this media?")) {
+      setRows([])
       mediaAPI.deleteMedia(id)
         .then(
           response => {
@@ -293,6 +289,7 @@ function Media() {
               setMessageType("error")
               setMessage(response.msg)
               setOpenMessage(true);
+              setRows(response.media_list)
             }
           },
           error => {
@@ -306,12 +303,18 @@ function Media() {
 
   // dialog variables and handle events
   const [openDialog, setOpenDialog] = React.useState(false);
-  const [mediaInfo, setMediaInfo] = React.useState();
+  const [mediaInfo, setMediaInfo] = React.useState([]);
   // handle show more media information
   const handleShowMedia = (event, id) => {
+    setMediaInfo({});
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].id === id) {
         setMediaInfo(rows[i]);
+        if (rows[i].transcribe_status === 1) {
+          var data = getJSONP(rows[i].transcribe_url)
+          rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+        }
+        break;
       }
     }
     setOpenDialog(true);
@@ -320,16 +323,25 @@ function Media() {
     setOpenDialog(false);
   };
 
-  // initial method
-  useEffect(() => {
-    getMedias();
-  }, [])
-
-  const getMedias = () => {
-    mediaAPI.medias()
+  // transcribe start handler
+  const handleTranscribeStart = (event, row) => {
+    setOpenDialog(false);
+    setMessageType("info")
+    setMessage("Transcribing now!, Please wait some minutes!");
+    setOpenMessage(true);
+    transcribeAPI.transcribe(row.s3_url, row.id)
       .then(
         response => {
-          setRows(response.media_list)
+          if (response.success === 'false') {
+            setMessageType("error")
+            setMessage(response.msg)
+            setOpenMessage(true);
+          } else if (response.success === 'true') {
+            setMessageType("success")
+            setMessage(response.msg)
+            setOpenMessage(true);
+          }
+          getMedias();
         },
         error => {
           setMessageType("error")
@@ -337,6 +349,82 @@ function Media() {
           setOpenMessage(true);
         }
       )
+  }
+
+  // transcribe preview handler
+  const [showTranscribe, setShowTranscribe] = React.useState(false);
+  const handleTranscribePreview = () => {
+    setShowTranscribe(true);
+  }
+
+  // initial method
+  useEffect(() => {
+    getMedias();
+  }, [])
+
+  const getMedias = () => {
+    setRows([])
+    mediaAPI.medias()
+      .then(
+        response => {
+          if (response.success === 'true') {
+            if (response.msg === "no data") {
+              setRows([])
+            } else {
+              setRows(response.media_list)
+            }
+          }
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
+        }
+      )
+  }
+
+  // common javascript functions
+  const getJSONP = (url, success) => {
+    var req = new XMLHttpRequest();
+    req.open('GET', url, false);
+    req.send(null);
+    return req.responseText;
+  }
+
+  // download pdf file
+  const downloadPDF = () => {
+    var pageWidth = 8.5,
+      lineHeight = 1.2,
+      margin = 0.5,
+      maxLineWidth = pageWidth - margin * 2,
+      fontSize = 12,
+      ptsPerInch = 72,
+      oneLineHeight = (fontSize * lineHeight) / ptsPerInch,
+      text = mediaInfo.transcript,
+      doc = new jsPDF({
+        orientation: "portrait",
+        unit: "in",
+        lineHeight: lineHeight
+      }).setProperties({ title: "Transcript" });
+
+    var textLines = doc
+      .setFont("helvetica")
+      .setFontSize(fontSize)
+      .splitTextToSize(text, maxLineWidth);
+    for (var i = 0; i <= parseInt(textLines.length / 52); i++) {
+      if (i !== 0) {
+        doc.addPage("8.5", "1");
+      }
+      var onePageData = [];
+      for (var j = 0; j < 52; j++) {
+        if (textLines[i * 52 + j] === undefined) {
+          break;
+        }
+        onePageData.push(textLines[i * 52 + j]);
+      }
+      doc.text(onePageData, margin, margin + 2 * oneLineHeight);
+    }
+    doc.save('file.pdf');
   }
 
   return (
@@ -367,43 +455,49 @@ function Media() {
             </CardHeader>
             <CardBody>
               <Grid container justify="flex-end">
-                <Button className={classes.cloudUploadButton} variant="contained" color="primary" onClick={handleGotoUploadMedia}>
-                  <CloudUploadIcon className={classes.cloudUploadIcon} />
-                    Upload new media
+                <Box pt={1} pb={1}>
+                  <Button variant="contained" color="primary" onClick={handleGotoUploadMedia}>
+                    <CloudUploadIcon />
+                    <div className={classes.iconBtnTextPos}>Upload new media</div>
                   </Button>
+                </Box>
               </Grid>
-              <Grid container alignItems="center">
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <KeyboardDatePicker
-                    className={classes.datePicker}
-                    variant="inline"
-                    format="MM/dd/yyyy"
-                    margin="normal"
-                    id="date-picker-from"
-                    label="From"
-                    value={selectedFromDate}
-                    onChange={handleFromDateChange}
-                    KeyboardButtonProps={{
-                      'aria-label': 'change date',
-                    }}
-                  />
-                  <KeyboardDatePicker
-                    className={classes.datePicker}
-                    variant="inline"
-                    format="MM/dd/yyyy"
-                    margin="normal"
-                    id="date-picker-to"
-                    label="To"
-                    value={selectedToDate}
-                    onChange={handleToDateChange}
-                    KeyboardButtonProps={{
-                      'aria-label': 'change date',
-                    }}
-                  />
-                </MuiPickersUtilsProvider>
-                <Button variant="contained" color="primary" className={classes.viewMediaButton}>
-                  View Medias
+              <Grid container>
+                <Grid item alignitem="center">
+                  <Box pt={1} pb={1}>
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                      <KeyboardDatePicker
+                        className={classes.datePicker}
+                        variant="inline"
+                        format="MM/dd/yyyy"
+                        margin="normal"
+                        id="date-picker-from"
+                        label="From"
+                        value={selectedFromDate}
+                        onChange={handleFromDateChange}
+                        KeyboardButtonProps={{
+                          'aria-label': 'change date',
+                        }}
+                      />
+                      <KeyboardDatePicker
+                        className={classes.datePicker}
+                        variant="inline"
+                        format="MM/dd/yyyy"
+                        margin="normal"
+                        id="date-picker-to"
+                        label="To"
+                        value={selectedToDate}
+                        onChange={handleToDateChange}
+                        KeyboardButtonProps={{
+                          'aria-label': 'change date',
+                        }}
+                      />
+                    </MuiPickersUtilsProvider>
+                    <Button variant="contained" color="primary" className={classes.viewMediaButton}>
+                      View Medias
                 </Button>
+                  </Box>
+                </Grid>
               </Grid>
               {/* table part */}
               <div className={classes.root}>
@@ -434,24 +528,24 @@ function Media() {
                                 >
                                   {row.id}
                                 </TableCell>
+                                <TableCell>{row.userId}</TableCell>
                                 <TableCell>{row.file_name}</TableCell>
-                                <TableCell>{row.export_options}</TableCell>
                                 <TableCell>{row.createdAt}</TableCell>
                                 <TableCell>{row.updatedAt}</TableCell>
+                                <TableCell>{(row.file_size / 1024 / 1024).toFixed(2)}MB</TableCell>
+                                <TableCell>{parseInt(row.duration / 60)}:{(row.duration % 60) < 10 ? '0' : ''}{row.duration % 60}</TableCell>
                                 <TableCell>{row.metadata}</TableCell>
-                                <TableCell>{row.credit_used}</TableCell>
-                                {/* <TableCell>{row.transcribe_status}</TableCell> */}
                                 <TableCell>
                                   {
                                     row.transcribe_status === 0 ?
                                       <Tooltip title="Start Transcribe" arrow>
-                                        <IconButton variant="contained" color="secondary" className={classes.viewMediaButton}>
+                                        <IconButton variant="contained" color="secondary" onClick={(event) => handleTranscribeStart(event, row)}>
                                           <RecordVoiceOverIcon />
                                         </IconButton>
                                       </Tooltip>
                                       :
                                       <Tooltip title="Preview Transcribe" arrow>
-                                        <IconButton variant="contained" color="primary" className={classes.viewMediaButton}>
+                                        <IconButton variant="contained" color="primary" >
                                           <VisibilityIcon />
                                         </IconButton>
                                       </Tooltip>
@@ -502,9 +596,8 @@ function Media() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Media Information</DialogTitle>
+        <DialogTitle id="alert-dialog-title">File Information</DialogTitle>
         <DialogContent>
-          {console.log(mediaInfo)}
           <Grid container>
             <Grid item md={4}>
               <strong>Media ID</strong>
@@ -515,7 +608,7 @@ function Media() {
           </Grid>
           <Grid container>
             <Grid item md={4}>
-              <strong>User ID</strong>
+              <strong>User Name</strong>
             </Grid>
             <Grid item md={8}>
               {mediaInfo !== undefined && mediaInfo.userId}
@@ -523,7 +616,7 @@ function Media() {
           </Grid>
           <Grid container>
             <Grid item md={4}>
-              <strong>Media Name</strong>
+              <strong>File Name</strong>
             </Grid>
             <Grid item md={8}>
               {mediaInfo !== undefined && mediaInfo.file_name}
@@ -535,6 +628,22 @@ function Media() {
             </Grid>
             <Grid item md={8}>
               {mediaInfo !== undefined && mediaInfo.s3_url}
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>File Size</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && (mediaInfo.file_size / 1024 / 1024).toFixed(2)}MB
+            </Grid>
+          </Grid>
+          <Grid container>
+            <Grid item md={4}>
+              <strong>Duration</strong>
+            </Grid>
+            <Grid item md={8}>
+              {mediaInfo !== undefined && (parseInt(mediaInfo.duration / 60))}:{mediaInfo !== undefined && ((mediaInfo.duration % 60) < 10 ? 0 : '')}{mediaInfo !== undefined && (mediaInfo.duration % 60)}
             </Grid>
           </Grid>
           <Grid container>
@@ -575,11 +684,11 @@ function Media() {
             </Grid>
             <Grid item md={8}>
               {
-                mediaInfo !== undefined && mediaInfo.transcribe_status !== 0 ?
+                mediaInfo !== undefined && mediaInfo.transcribe_status === 0 ?
                   <Grid container>
-                    <Grid item className={classes.notTranscirbed}>Not Transcribed</Grid>
+                    <Grid item className={classes.notTranscribed}>Not Transcribed</Grid>
                     <Grid item>
-                      <Button variant="contained" color="secondary" size="small" className={classes.viewMediaButton}>
+                      <Button variant="contained" color="secondary" size="small" onClick={(event) => handleTranscribeStart(event, mediaInfo)}>
                         <RecordVoiceOverIcon />
                         <div className={classes.iconBtnTextPos}>Start Transcribe</div>
                       </Button>
@@ -587,9 +696,9 @@ function Media() {
                   </Grid>
                   :
                   <Grid container>
-                    <Grid item className={classes.transcirbed}>Transcribed</Grid>
+                    <Grid item className={classes.transcribed}>Transcribed</Grid>
                     <Grid item>
-                      <Button variant="contained" color="primary" size="small" className={classes.viewMediaButton}>
+                      <Button variant="contained" color="primary" size="small" onClick={handleTranscribePreview}>
                         <VisibilityIcon />
                         <div className={classes.iconBtnTextPos}>Preview Transcribe</div>
                       </Button>
@@ -598,6 +707,32 @@ function Media() {
               }
             </Grid>
           </Grid>
+          {
+            mediaInfo !== undefined && mediaInfo.transcribe_status === 1 ?
+              <Grid container>
+                <Grid item md={4}>
+                  <strong>Download</strong>
+                </Grid>
+                <Grid item md={8}>
+                  <Button variant="contained" color="secondary" size="small" onClick={downloadPDF}>
+                    <CloudDownloadIcon />
+                    <div className={classes.iconBtnTextPos}>Download PDF</div>
+                  </Button>
+                </Grid>
+              </Grid>
+              :
+              ''
+          }
+          {
+            showTranscribe === true ?
+              <Grid container>
+                <Grid item md={8}>
+                  <div id="transcript_content">{mediaInfo !== undefined && mediaInfo.transcript}</div>
+                </Grid>
+              </Grid>
+              :
+              ''
+          }
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary" autoFocus>

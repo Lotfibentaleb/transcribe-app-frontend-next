@@ -24,6 +24,7 @@
     "classnames": "2.2.6",
     "date-fns": "^2.0.0-beta.5",
     "history": "5.0.0",
+    "jspdf": "^2.1.1",
     "material-ui-flags": "^1.0.15",
     "next": "9.5.2",
     "next-compose-plugins": "2.2.0",

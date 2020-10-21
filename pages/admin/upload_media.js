@@ -429,7 +429,7 @@ function UploadMedia() {
                 </Stepper>
               </Grid>
               {/* dropzone part */}
-              <Grid item sm={12} md={12} lg={8} className={classes.padding20}>
+              <Grid item sm={12} md={12} lg={12} className={classes.padding20}>
                 <Dropzone
                   onDrop={selectedFiles => { addKeyInAcceptedFiles(selectedFiles) }}
                 >

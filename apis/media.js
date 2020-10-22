@@ -8,7 +8,7 @@ const API_URL = publicRuntimeConfig.API_ENDPOINT;
 class Media {
   medias() {
     return axios
-      .get(API_URL + "medias")
+      .get(API_URL + "medias/", { headers: authHeader() })
       .then(
         response => {
           return response.data;
@@ -21,7 +21,7 @@ class Media {
 
   deleteMedia(id) {
     return axios
-      .get(API_URL + "medias/delete/" + id)
+      .get(API_URL + "medias/delete/" + id, { headers: authHeader() })
       .then(
         response => {
           return response.data;

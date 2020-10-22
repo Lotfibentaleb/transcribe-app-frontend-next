@@ -16,7 +16,7 @@ class UploadMedia {
     return axios
       .post(API_URL + "medias/upload", fileUploadInfo, {
         onUploadProgress: function processcallback(progressEvent) {
-          var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           var currentTime = new Date();
           var speed = progressEvent.loaded / 1024 / 1024 / (currentTime - startTime) * 1000;
           if (isInitialLoading) {
@@ -33,8 +33,7 @@ class UploadMedia {
             speedArray[index] = speed;
             callback(index, progressArray, totalArray, loadedArray, speedArray);
           }
-        }
-      })
+        }, headers: authHeader() })
       .then(
         response => {
           return response.data;

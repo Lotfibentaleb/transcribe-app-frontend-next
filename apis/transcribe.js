@@ -12,7 +12,7 @@ class Transcribe {
     jsonObj.lang = "en-US";
     jsonObj.index = 0;
     return axios
-      .post(API_URL + "transcribe/" + mediaId, jsonObj)
+      .post(API_URL + "transcribe/" + mediaId, jsonObj, { headers: authHeader() })
       .then(
         response => {
           return response.data;
@@ -35,7 +35,7 @@ class Transcribe {
     jsonObj.index = index;
     
     return axios
-      .post(API_URL + "transcribe/" + mediaId, jsonObj)
+      .post(API_URL + "transcribe/" + mediaId, jsonObj, { headers: authHeader() })
       .then(
         response => {
           return response.data;

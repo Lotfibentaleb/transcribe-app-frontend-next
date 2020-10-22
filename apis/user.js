@@ -8,7 +8,7 @@ const API_URL = publicRuntimeConfig.API_ENDPOINT;
 class User {
   users() {
     return axios
-      .get(API_URL + "users", { headers: authHeader() })
+      .get(API_URL + "users/", { headers: authHeader() })
       .then(response => {
         return response.data;
       });

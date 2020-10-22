@@ -11,7 +11,11 @@ class User {
       .get(API_URL + "users/", { headers: authHeader() })
       .then(response => {
         return response.data;
-      });
+      },
+      error => {
+        return error;
+      }
+    );
   }
 
   addUser(userInfo) {
@@ -22,7 +26,7 @@ class User {
           return response.data;
         },
         error => {
-          console.log(error)
+          return error;
         }
       )
   }
@@ -35,7 +39,7 @@ class User {
           return response.data;
         },
         error => {
-          console.log(error)
+          return error;
         }
       )
   }
@@ -48,7 +52,7 @@ class User {
           return response.data;
         },
         error => {
-          console.log(error)
+          return error;
         }
       )
   }

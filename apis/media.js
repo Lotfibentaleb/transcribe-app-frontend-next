@@ -14,7 +14,7 @@ class Media {
           return response.data;
         },
         error => {
-          return error
+          return error;
         }
       );
   }
@@ -27,7 +27,7 @@ class Media {
           return response.data;
         },
         error => {
-          return error
+          return error;
         }
       )
   }

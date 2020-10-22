@@ -280,6 +280,12 @@ function Media() {
       mediaAPI.deleteMedia(id)
         .then(
           response => {
+            if (response.message === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.message)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/signin"); }, 5000);
+            }
             if (response.success === 'true') {
               setMessageType("success")
               setMessage(response.msg)
@@ -354,6 +360,12 @@ function Media() {
     transcribeAPI.transcribe(row.s3_url, row.id)
       .then(
         response => {
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          }
           if (response.success === 'false') {
             setMessageType("error")
             setMessage(response.msg)
@@ -389,6 +401,12 @@ function Media() {
     mediaAPI.medias()
       .then(
         response => {
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          }
           if (response.success === 'true') {
             if (response.msg === "no data") {
               setRows([])

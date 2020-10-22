@@ -119,7 +119,6 @@ const useStyles = makeStyles((theme) => ({
     color: '#f50057',
     fontSize: "16px",
     fontWeight: "700",
-    paddingRight: "20px"
   },
   transcribed: {
     display: "flex",
@@ -127,8 +126,10 @@ const useStyles = makeStyles((theme) => ({
     color: '#3f51b4',
     fontSize: "16px",
     fontWeight: "700",
-    paddingRight: "20px"
   },
+  paddingRight20: {
+    paddingRight: "20px"
+  }
 }));
 
 // table variables
@@ -301,11 +302,10 @@ function Media() {
     }
   }
 
-  // dialog variables and handle events
-  const [openDialog, setOpenDialog] = React.useState(false);
+  // file information dialog variables and handle events
+  const [openFileInformationDialog, setOpenFileInformationDialog] = React.useState(false);
   const [mediaInfo, setMediaInfo] = React.useState([]);
-  // handle show more media information
-  const handleShowMedia = (event, id) => {
+  const handleOpenFileInformationDialog = (event, id) => {
     setMediaInfo({});
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].id === id) {
@@ -317,15 +317,37 @@ function Media() {
         break;
       }
     }
-    setOpenDialog(true);
+    setOpenFileInformationDialog(true);
   }
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const handleCloseFileInformationDialog = () => {
+    setShowSubTranscript(false);
+    setOpenFileInformationDialog(false);
   };
+
+  // transcript prievew dialog variables and handle events
+  const [openTranscriptPreviewDialog, setOpenTranscriptPreviewDialog] = React.useState(false);
+  const handleOpenTranscriptPreviewDialog = (event, id) => {
+    setMediaInfo({});
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].id === id) {
+        if (rows[i].transcribe_status === 1) {
+          var data = getJSONP(rows[i].transcribe_url)
+          rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+          setMediaInfo(rows[i]);
+        }
+        break;
+      }
+    }
+    setOpenTranscriptPreviewDialog(true);
+  }
+  const handleCloseTranscriptPreviewDialog = () => {
+    setOpenTranscriptPreviewDialog(false);
+  };
+
 
   // transcribe start handler
   const handleTranscribeStart = (event, row) => {
-    setOpenDialog(false);
+    setOpenFileInformationDialog(false);
     setMessageType("info")
     setMessage("Transcribing now!, Please wait some minutes!");
     setOpenMessage(true);
@@ -351,10 +373,10 @@ function Media() {
       )
   }
 
-  // transcribe preview handler
-  const [showTranscribe, setShowTranscribe] = React.useState(false);
-  const handleTranscribePreview = () => {
-    setShowTranscribe(true);
+  // sub transcript preview handler
+  const [showSubTranscript, setShowSubTranscript] = React.useState(false);
+  const handleSubTranscriptPreview = () => {
+    setShowSubTranscript(true);
   }
 
   // initial method
@@ -538,14 +560,14 @@ function Media() {
                                 <TableCell>
                                   {
                                     row.transcribe_status === 0 ?
-                                      <Tooltip title="Start Transcribe" arrow>
+                                      <Tooltip title="Start Transcript" arrow>
                                         <IconButton variant="contained" color="secondary" onClick={(event) => handleTranscribeStart(event, row)}>
                                           <RecordVoiceOverIcon />
                                         </IconButton>
                                       </Tooltip>
                                       :
-                                      <Tooltip title="Preview Transcribe" arrow>
-                                        <IconButton variant="contained" color="primary" >
+                                      <Tooltip title="Preview Transcript" arrow>
+                                        <IconButton variant="contained" color="primary" onClick={(event) => handleOpenTranscriptPreviewDialog(event, row.id)}>
                                           <VisibilityIcon />
                                         </IconButton>
                                       </Tooltip>
@@ -553,7 +575,7 @@ function Media() {
                                 </TableCell>
                                 <TableCell align="center">
                                   <Tooltip title="Show more media information" arrow>
-                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleShowMedia(event, row.id)}>
+                                    <IconButton color="primary" aria-label="upload picture" component="span" onClick={(event) => handleOpenFileInformationDialog(event, row.id)}>
                                       <MoreIcon />
                                     </IconButton>
                                   </Tooltip>
@@ -589,145 +611,143 @@ function Media() {
           </Card>
         </GridItem>
       </GridContainer>
-      {/* dialog part */}
+      {/* dialog part: File information dialog */}
       <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
+        open={openFileInformationDialog}
+        onClose={handleCloseFileInformationDialog}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        maxWidth="lg"
+        fullWidth={true}
       >
         <DialogTitle id="alert-dialog-title">File Information</DialogTitle>
         <DialogContent>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Media ID</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.id}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>User Name</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.userId}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>File Name</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.file_name}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>File Path</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.s3_url}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>File Size</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && (mediaInfo.file_size / 1024 / 1024).toFixed(2)}MB
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Duration</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && (parseInt(mediaInfo.duration / 60))}:{mediaInfo !== undefined && ((mediaInfo.duration % 60) < 10 ? 0 : '')}{mediaInfo !== undefined && (mediaInfo.duration % 60)}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Created At</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.createdAt}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Updated At</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.updatedAt}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Meta Data</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.updatedAt}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
+            <Grid item sm={4} md={2}>
               <strong>Credit Used</strong>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {mediaInfo !== undefined && mediaInfo.updatedAt}
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item md={4}>
-              <strong>Status</strong>
+            <Grid item sm={4} md={2}>
+              <Box pt={1} pb={1} >
+                <strong>Status</strong>
+              </Box>
             </Grid>
-            <Grid item md={8}>
+            <Grid item sm={8} md={10}>
               {
                 mediaInfo !== undefined && mediaInfo.transcribe_status === 0 ?
-                  <Grid container>
-                    <Grid item className={classes.notTranscribed}>Not Transcribed</Grid>
-                    <Grid item>
-                      <Button variant="contained" color="secondary" size="small" onClick={(event) => handleTranscribeStart(event, mediaInfo)}>
-                        <RecordVoiceOverIcon />
-                        <div className={classes.iconBtnTextPos}>Start Transcribe</div>
-                      </Button>
+                  <Box pt={1} pb={1} >
+                    <Grid container>
+                      <Grid item className={`${classes.notTranscribed} ${classes.paddingRight20}`}>Not Transcribed</Grid>
+                      <Grid item>
+                        <Button variant="contained" color="secondary" size="small" onClick={(event) => handleTranscribeStart(event, mediaInfo)}>
+                          <RecordVoiceOverIcon />
+                          <div className={classes.iconBtnTextPos}>Start Transcript</div>
+                        </Button>
+                      </Grid>
                     </Grid>
-                  </Grid>
+                  </Box>
                   :
-                  <Grid container>
-                    <Grid item className={classes.transcribed}>Transcribed</Grid>
-                    <Grid item>
-                      <Button variant="contained" color="primary" size="small" onClick={handleTranscribePreview}>
-                        <VisibilityIcon />
-                        <div className={classes.iconBtnTextPos}>Preview Transcribe</div>
-                      </Button>
+                  <Box pt={1} pb={1}>
+                    <Grid container>
+                      <Grid item className={`${classes.transcribed} ${classes.paddingRight20}`}>Transcribed</Grid>
+                      <Grid item className={classes.paddingRight20}>
+                        <Button variant="contained" color="primary" size="small" onClick={handleSubTranscriptPreview}>
+                          <VisibilityIcon />
+                          <div className={classes.iconBtnTextPos}>Preview Transcript</div>
+                        </Button>
+                      </Grid>
+                      <Grid item className={classes.paddingRight20}>
+                        <Button ml={2} variant="contained" color="secondary" size="small" onClick={downloadPDF}>
+                          <CloudDownloadIcon />
+                          <div className={classes.iconBtnTextPos}>Download PDF</div>
+                        </Button>
+                      </Grid>
                     </Grid>
-                  </Grid>
+                  </Box>
               }
             </Grid>
           </Grid>
           {
-            mediaInfo !== undefined && mediaInfo.transcribe_status === 1 ?
+            showSubTranscript === true ?
               <Grid container>
-                <Grid item md={4}>
-                  <strong>Download</strong>
-                </Grid>
-                <Grid item md={8}>
-                  <Button variant="contained" color="secondary" size="small" onClick={downloadPDF}>
-                    <CloudDownloadIcon />
-                    <div className={classes.iconBtnTextPos}>Download PDF</div>
-                  </Button>
-                </Grid>
-              </Grid>
-              :
-              ''
-          }
-          {
-            showTranscribe === true ?
-              <Grid container>
-                <Grid item md={8}>
-                  <div id="transcript_content">{mediaInfo !== undefined && mediaInfo.transcript}</div>
+                <Grid item>
+                  <div>{mediaInfo !== undefined && mediaInfo.transcript}</div>
                 </Grid>
               </Grid>
               :
@@ -735,7 +755,30 @@ function Media() {
           }
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary" autoFocus>
+          <Button onClick={handleCloseFileInformationDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* dialog part: transcript preview dialog */}
+      <Dialog
+        open={openTranscriptPreviewDialog}
+        onClose={handleCloseTranscriptPreviewDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        maxWidth="lg"
+        fullWidth={true}
+      >
+        <DialogTitle id="alert-dialog-title">Transcript Preview</DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid item>
+              <div>{mediaInfo !== undefined && mediaInfo.transcript}</div>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseTranscriptPreviewDialog} color="primary" autoFocus>
             OK
           </Button>
         </DialogActions>

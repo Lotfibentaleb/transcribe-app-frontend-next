@@ -99,11 +99,17 @@ function Signin() {
       authAPI.signin(authInfo)
         .then(
           response => {
-            if (response.jwt_token !== undefined) {
-              setIsLoading(false)
+            setIsLoading(false)
+            if (response.success === "false") {
+              setMessageType("warning")
+              setMessage(response.msg)
+              setOpenMessage(true);
+            } else if (response.success === "true" && response.jwt_token !== undefined) {
               Router.push("/admin/dashboard");
             } else {
-              console.log(response)
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
             }
           },
           error => {

@@ -238,14 +238,14 @@ function User() {
       userAPI.addUser(userInfo)
         .then(
           response => {
-            if (response.message === 'success') {
+            if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Adding new user success!")
               setOpenMessage(true);
               setRows(response.users)
             } else {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
             }
             setOpenDialog(false)
@@ -273,14 +273,14 @@ function User() {
       userAPI.editUser(userInfo, editableID)
         .then(
           response => {
-            if (response.message === 'success') {
+            if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Editing User success!")
               setOpenMessage(true);
               setRows(response.users)
             } else {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
             }
             setOpenDialog(false)
@@ -300,7 +300,7 @@ function User() {
       userAPI.deleteUser(id)
         .then(
           response => {
-            if (response.message === 'success') {
+            if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Deleting user success!")
               setOpenMessage(true);
@@ -308,7 +308,7 @@ function User() {
               setRows(response.users)
             } else {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
             }
           },

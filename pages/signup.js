@@ -110,11 +110,20 @@ function Signup() {
       authAPI.signup(authInfo)
         .then(
           response => {
-            if (response.jwt_token !== undefined) {
-              setIsLoading(false)
-              Router.push("admin/dashboard")
+            setIsLoading(false)
+            if (response.success === "false") {
+              setMessageType("warning")
+              setMessage(response.msg)
+              setOpenMessage(true);
+            } else if (response.success === "true") {
+              setMessageType("success")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setTimeout(function(){ Router.push("/signin"); }, 2000);              
             } else {
-              console.log(response)
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
             }
           },
           error => {

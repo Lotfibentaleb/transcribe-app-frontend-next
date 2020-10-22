@@ -414,7 +414,24 @@ function Media() {
   }
 
   // download pdf file
-  const downloadPDF = () => {
+  const downloadPDF = (event, id) => {
+    if (id !== undefined) {
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].id === id) {
+          if (rows[i].transcribe_status === 1) {
+            var data = getJSONP(rows[i].transcribe_url)
+            rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+            downloadPDFModule(rows[i].transcript);
+          }
+          break;
+        }
+      }
+    } else {
+      downloadPDFModule(mediaInfo.transcript);
+    }
+  }
+  // download pdf module
+  const downloadPDFModule = (transcript) => {
     var pageWidth = 8.5,
       lineHeight = 1.2,
       margin = 0.5,
@@ -422,7 +439,7 @@ function Media() {
       fontSize = 12,
       ptsPerInch = 72,
       oneLineHeight = (fontSize * lineHeight) / ptsPerInch,
-      text = mediaInfo.transcript,
+      text = transcript,
       doc = new jsPDF({
         orientation: "portrait",
         unit: "in",
@@ -566,11 +583,18 @@ function Media() {
                                         </IconButton>
                                       </Tooltip>
                                       :
-                                      <Tooltip title="Preview Transcript" arrow>
-                                        <IconButton variant="contained" color="primary" onClick={(event) => handleOpenTranscriptPreviewDialog(event, row.id)}>
-                                          <VisibilityIcon />
-                                        </IconButton>
-                                      </Tooltip>
+                                      <div>
+                                        <Tooltip title="Preview Transcript" arrow>
+                                          <IconButton variant="contained" color="primary" onClick={(event) => handleOpenTranscriptPreviewDialog(event, row.id)}>
+                                            <VisibilityIcon />
+                                          </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Download Transcript" arrow>
+                                          <IconButton variant="contained" color="primary" onClick={(event) => downloadPDF(event, row.id)}>
+                                            <CloudDownloadIcon />
+                                          </IconButton>
+                                        </Tooltip>
+                                      </div>
                                   }
                                 </TableCell>
                                 <TableCell align="center">

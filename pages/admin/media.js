@@ -266,7 +266,7 @@ function Media() {
             setMessageType("error")
             setMessage(response.message)
             setOpenMessage(true);
-            setTimeout(function () { Router.push("/signin"); }, 5000);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }
           if (response.success === 'true') {
             if (response.msg === "no data") {
@@ -322,7 +322,7 @@ function Media() {
               setMessageType("error")
               setMessage(response.message)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 5000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
             if (response.success === 'true') {
               setMessageType("success")
@@ -402,7 +402,7 @@ function Media() {
             setMessageType("error")
             setMessage(response.message)
             setOpenMessage(true);
-            setTimeout(function () { Router.push("/signin"); }, 5000);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }
           if (response.success === 'false') {
             setMessageType("error")
@@ -443,7 +443,7 @@ function Media() {
             setMessageType("error")
             setMessage(response.message)
             setOpenMessage(true);
-            setTimeout(function () { Router.push("/signin"); }, 5000);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }
           if (response.success === 'true') {
             if (response.msg === "no data") {

@@ -20,7 +20,7 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 // call api
-import authAPI from "../apis/auth";
+import authAPI from "../../apis/auth";
 
 
 const styles = {
@@ -82,7 +82,7 @@ function Signup() {
 
   // functions
   const handleGotoSignin = () => {
-    Router.push("/signin");
+    Router.push("/auth/signin");
   }
 
   const handleMessageClose = (event, reason) => {
@@ -119,7 +119,7 @@ function Signup() {
               setMessageType("success")
               setMessage(response.msg)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 2000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 2000);
             } else {
               setMessageType("error")
               setMessage(response.msg)

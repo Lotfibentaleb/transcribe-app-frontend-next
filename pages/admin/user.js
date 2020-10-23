@@ -243,7 +243,7 @@ function User() {
               setMessageType("error")
               setMessage(response.message)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 5000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
             if (response.msg === 'success') {
               setMessageType("success")
@@ -284,7 +284,7 @@ function User() {
               setMessageType("error")
               setMessage(response.message)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 5000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
             if (response.msg === 'success') {
               setMessageType("success")
@@ -317,7 +317,7 @@ function User() {
               setMessageType("error")
               setMessage(response.message)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 5000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
             if (response.msg === 'success') {
               setMessageType("success")
@@ -426,7 +426,7 @@ function User() {
             setMessageType("error")
             setMessage(response.message)
             setOpenMessage(true);
-            setTimeout(function () { Router.push("/signin"); }, 5000);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           } else {
             setRows(response.users)
           }

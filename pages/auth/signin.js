@@ -19,7 +19,7 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 // call api
-import authAPI from "../apis/auth";
+import authAPI from "../../apis/auth";
 
 
 const styles = {
@@ -76,7 +76,7 @@ function Signin() {
   const [openMessage, setOpenMessage] = React.useState(false);
   // functions
   const handleGotoSignup = () => {
-    Router.push("/signup");
+    Router.push("/auth/signup");
   }
   const handleMessageClose = (event, reason) => {
     if (reason === 'clickaway') {

@@ -10,6 +10,7 @@ class User {
     return axios
       .get(API_URL + "users/", { headers: authHeader() })
       .then(response => {
+        localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
         return response.data;
       },
       error => {
@@ -23,6 +24,7 @@ class User {
       .post(API_URL + "users/add", userInfo, { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {
@@ -36,6 +38,7 @@ class User {
       .get(API_URL + "users/delete/" + id, { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {
@@ -49,6 +52,7 @@ class User {
       .post(API_URL + "users/edit/" + id, userInfo, { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {

@@ -11,6 +11,7 @@ class Media {
       .get(API_URL + "medias/", { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {
@@ -24,6 +25,7 @@ class Media {
       .get(API_URL + "medias/delete/" + id, { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {

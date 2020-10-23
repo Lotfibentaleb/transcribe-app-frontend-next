@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Router from "next/router";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
@@ -238,6 +239,12 @@ function User() {
       userAPI.addUser(userInfo)
         .then(
           response => {
+            if (response.message === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.message)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/signin"); }, 5000);
+            }
             if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Adding new user success!")
@@ -273,6 +280,12 @@ function User() {
       userAPI.editUser(userInfo, editableID)
         .then(
           response => {
+            if (response.message === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.message)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/signin"); }, 5000);
+            }
             if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Editing User success!")
@@ -300,6 +313,12 @@ function User() {
       userAPI.deleteUser(id)
         .then(
           response => {
+            if (response.message === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.message)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/signin"); }, 5000);
+            }
             if (response.msg === 'success') {
               setMessageType("success")
               setMessage("Deleting user success!")
@@ -403,7 +422,14 @@ function User() {
     userAPI.users()
       .then(
         response => {
-          setRows(response.users)
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          } else {
+            setRows(response.users)
+          }
         },
         error => {
           setMessageType("error")

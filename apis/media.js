@@ -11,10 +11,28 @@ class Media {
       .get(API_URL + "medias/", { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {
-          return error
+          return error;
+        }
+      );
+  }
+
+  getMediaByDate(startDate, endDate) {
+    var jsonObj = {start_date : "", end_date: ""}
+    jsonObj.start_date = startDate;
+    jsonObj.end_date = endDate;
+    return axios
+      .post(API_URL + "medias/search", jsonObj, { headers: authHeader() })
+      .then(
+        response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+          return response.data;
+        },
+        error => {
+          return error;
         }
       );
   }
@@ -24,10 +42,11 @@ class Media {
       .get(API_URL + "medias/delete/" + id, { headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {
-          return error
+          return error;
         }
       )
   }

@@ -119,7 +119,7 @@ function Signup() {
               setMessageType("success")
               setMessage(response.msg)
               setOpenMessage(true);
-              setTimeout(function(){ Router.push("/signin"); }, 2000);              
+              setTimeout(function () { Router.push("/signin"); }, 2000);
             } else {
               setMessageType("error")
               setMessage(response.msg)

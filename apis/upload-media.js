@@ -36,6 +36,7 @@ class UploadMedia {
         }, headers: authHeader() })
       .then(
         response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
           return response.data;
         },
         error => {

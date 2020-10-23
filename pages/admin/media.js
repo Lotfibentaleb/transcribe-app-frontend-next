@@ -240,11 +240,49 @@ function Media() {
   const [selectedToDate, setSelectedToDate] = React.useState(new Date());
   // data picker handlers
   const handleFromDateChange = (date) => {
+    if (date > selectedToDate) {
+      date = selectedToDate;
+    }
+    var start_date = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
+    var end_date = selectedToDate.getFullYear() + '-' + ((selectedToDate.getMonth() > 8) ? (selectedToDate.getMonth() + 1) : ('0' + (selectedToDate.getMonth() + 1))) + '-' + ((selectedToDate.getDate() > 9) ? selectedToDate.getDate() : ('0' + selectedToDate.getDate()));
     setSelectedFromDate(date);
+    getMediaByDate(start_date.toString(), end_date.toString());
   };
   const handleToDateChange = (date) => {
+    if (date < selectedFromDate) {
+      date = selectedFromDate;
+    }
+    var start_date = selectedFromDate.getFullYear() + '-' + ((selectedFromDate.getMonth() > 8) ? (selectedFromDate.getMonth() + 1) : ('0' + (selectedFromDate.getMonth() + 1))) + '-' + ((selectedFromDate.getDate() > 9) ? selectedFromDate.getDate() : ('0' + selectedFromDate.getDate()));
+    var end_date = date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()));
     setSelectedToDate(date);
+    getMediaByDate(start_date, end_date);
   };
+  const getMediaByDate = (start_date, end_date) => {
+    setRows([])
+    mediaAPI.getMediaByDate(start_date, end_date)
+      .then(
+        response => {
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          }
+          if (response.success === 'true') {
+            if (response.msg === "no data") {
+              setRows([])
+            } else {
+              setRows(response.media_list)
+            }
+          }
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
+        }
+      )
+  }
   // functions
   const handleGotoUploadMedia = () => {
     Router.push("/admin/upload_media");
@@ -280,6 +318,12 @@ function Media() {
       mediaAPI.deleteMedia(id)
         .then(
           response => {
+            if (response.message === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.message)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/signin"); }, 5000);
+            }
             if (response.success === 'true') {
               setMessageType("success")
               setMessage(response.msg)
@@ -354,6 +398,12 @@ function Media() {
     transcribeAPI.transcribe(row.s3_url, row.id)
       .then(
         response => {
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          }
           if (response.success === 'false') {
             setMessageType("error")
             setMessage(response.msg)
@@ -389,6 +439,12 @@ function Media() {
     mediaAPI.medias()
       .then(
         response => {
+          if (response.message === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.message)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/signin"); }, 5000);
+          }
           if (response.success === 'true') {
             if (response.msg === "no data") {
               setRows([])
@@ -532,9 +588,6 @@ function Media() {
                         }}
                       />
                     </MuiPickersUtilsProvider>
-                    <Button variant="contained" color="primary" className={classes.viewMediaButton}>
-                      View Medias
-                </Button>
                   </Box>
                 </Grid>
               </Grid>

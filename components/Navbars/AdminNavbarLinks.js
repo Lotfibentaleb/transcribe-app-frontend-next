@@ -22,7 +22,7 @@ import Button from "components/CustomButtons/Button.js";
 import useWindowSize from "components/Hooks/useWindowSize.js";
 
 // call apis
-import authAPI from "../../apis/auth";
+import authAPI from "apis/auth";
 
 import styles from "assets/jss/nextjs-material-dashboard/components/headerLinksStyle.js";
 

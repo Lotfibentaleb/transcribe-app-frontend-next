@@ -7,7 +7,7 @@ export default class Index extends Component {
     if (token !== null) {
       Router.push("/admin/dashboard");
     }
-    Router.push("/signin");
+    Router.push("/landing");
   };
 
   render() {

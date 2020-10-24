@@ -19,41 +19,10 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 // call api
-import authAPI from "../apis/auth";
+import authAPI from "apis/auth";
 
-
-const styles = {
-  height95: {
-    height: "95vh",
-  },
-  width100: {
-    width: "100%"
-  },
-  displayFlex: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    width: "100% !important",
-  },
-  justifyCenter: {
-    justifyContent: "center",
-  },
-  cardTitleWhite: {
-    color: "#FFFFFF",
-    marginTop: "0px",
-    minHeight: "auto",
-    fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1",
-    },
-  },
-};
+// style
+import styles from "assets/jss/transcribe/auth/signin.js";
 
 const useStyles = makeStyles(styles);
 
@@ -76,7 +45,7 @@ function Signin() {
   const [openMessage, setOpenMessage] = React.useState(false);
   // functions
   const handleGotoSignup = () => {
-    Router.push("/signup");
+    Router.push("/auth/signup");
   }
   const handleMessageClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -140,7 +109,7 @@ function Signin() {
 
   return (
     <Grid className={classes.height95} container alignItems="center">
-      <Grid className={classes.width100} >
+      <Grid className={classes.width95} >
         {/* snackbar component */}
         <Snackbar
           open={openMessage}

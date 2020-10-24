@@ -20,41 +20,10 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 // call api
-import authAPI from "../apis/auth";
+import authAPI from "apis/auth";
 
-
-const styles = {
-  height95: {
-    height: "95vh",
-  },
-  width100: {
-    width: "100%"
-  },
-  displayFlex: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    width: "100% !important",
-  },
-  justifyCenter: {
-    justifyContent: "center",
-  },
-  cardTitleWhite: {
-    color: "#FFFFFF",
-    marginTop: "0px",
-    minHeight: "auto",
-    fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1",
-    },
-  },
-};
+// style
+import styles from "assets/jss/transcribe/auth/signup.js";
 
 const useStyles = makeStyles(styles);
 
@@ -82,7 +51,7 @@ function Signup() {
 
   // functions
   const handleGotoSignin = () => {
-    Router.push("/signin");
+    Router.push("/auth/signin");
   }
 
   const handleMessageClose = (event, reason) => {
@@ -119,7 +88,7 @@ function Signup() {
               setMessageType("success")
               setMessage(response.msg)
               setOpenMessage(true);
-              setTimeout(function () { Router.push("/signin"); }, 2000);
+              setTimeout(function () { Router.push("/auth/signin"); }, 2000);
             } else {
               setMessageType("error")
               setMessage(response.msg)
@@ -163,7 +132,7 @@ function Signup() {
 
   return (
     <Grid className={classes.height95} container alignItems="center">
-      <Grid className={classes.width100} >
+      <Grid className={classes.width95} >
         {/* snackbar component */}
         <Snackbar
           open={openMessage}

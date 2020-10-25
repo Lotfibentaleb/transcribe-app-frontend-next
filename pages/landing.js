@@ -1,4 +1,6 @@
 import React from "react";
+// nodejs library that concatenates classes
+import classNames from "classnames";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 // core components
@@ -37,6 +39,7 @@ export default function LandingPage(props) {
         }}
         {...rest}
       />
+      <div id="home">
       <Parallax filter responsive image={require("assets/img/landing-bg.jpg")}>
         <div className={classes.container}>
           <GridContainer>
@@ -69,7 +72,21 @@ export default function LandingPage(props) {
           </GridContainer>
         </div>
       </Parallax>
+      </div>
+      <section className={classes.section}>
+        <div className={classNames(classes.main, classes.mainRaised)}>
+          <div className={classes.container}>
+            <div id="pricing" className={classes.pricingSection}>
+            </div>
+            <div id="aboutus" className={classes.aboutusSection}>
+            </div>
+            <div id="contactus" className={classes.contactusSection}>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
-    </div>
+    </div >
   );
 }

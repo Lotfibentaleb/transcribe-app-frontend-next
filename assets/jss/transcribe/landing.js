@@ -32,25 +32,13 @@ const landingPageStyle = {
       "0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2)"
   },
   section: {
-    scrollBehavior: "smooth",
+    width: "100%",
+    padding: "50px 0px 0px 0px",
   },
   sectionTitle: {
     fontSize: "30px",
     fontWeight: "bold",
     color: "grey"
-  },
-  pricingSection: {
-    width: "100%",
-    height: "500px",
-    padding: "90px 0px"
-  },
-  aboutusSection: {
-    width: "100%",
-    height: "500px",
-  },
-  contactusSection: {
-    width: "100%",
-    height: "500px",
   },
 };
 

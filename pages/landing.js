@@ -17,7 +17,8 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import TelegramIcon from "@material-ui/icons/Telegram";
 
 // section part
-import PricingSection from "./Sections/PricingSection.js";
+import PricingSection from "./Sections/pricing_section.js";
+import AboutusSection from "./Sections/aboutus_section.js";
 
 import styles from "assets/jss/transcribe/landing.js";
 
@@ -42,54 +43,58 @@ export default function LandingPage(props) {
         }}
         {...rest}
       />
-      <div id="home">
-        <Parallax filter responsive image={require("assets/img/landing-bg.jpg")}>
-          <div className={classes.container}>
-            <GridContainer>
-              <GridItem xs={12} sm={12} md={6}>
-                <h1 className={classes.title}>Transcribe</h1>
-                <h4>
-                  Transcribing and editing speeches is painful.
-                  We make it fast, simple, and affordable.
+      <Parallax filter responsive image={require("assets/img/landing-bg.jpg")}>
+        <div className={classes.container}>
+          <GridContainer>
+            <GridItem xs={12} sm={12} md={6}>
+              <h1 className={classes.title}>Transcribe</h1>
+              <h4>
+                Transcribing and editing speeches is painful.
+                We make it fast, simple, and affordable.
               </h4>
-                <br />
-                <Button
-                  color="success"
-                  size="lg"
-                  href="#"
-                  rel="noopener noreferrer"
-                >
-                  <TelegramIcon />
+              <br />
+              <Button
+                color="success"
+                size="lg"
+                href="#"
+                rel="noopener noreferrer"
+              >
+                <TelegramIcon />
                 Try transcribe for free
               </Button>
-                <Button
-                  color="danger"
-                  size="lg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <PlayArrowIcon />
+              <Button
+                color="danger"
+                size="lg"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <PlayArrowIcon />
                 Watch video
               </Button>
-              </GridItem>
-            </GridContainer>
-          </div>
-        </Parallax>
-      </div>
+            </GridItem>
+          </GridContainer>
+        </div>
+      </Parallax>
       <section className={classes.section}>
         <div className={classNames(classes.main, classes.mainRaised)}>
           <div className={classes.container}>
-            <div id="pricing" className={classes.pricingSection}>
-              <GridContainer>
-                <GridItem>
+            <GridContainer>
+              <GridItem>
+                <div id="pricing" className={classes.section}>
                   <div className={classes.sectionTitle}>Pricing</div>
                   <PricingSection />
-                </GridItem>
-              </GridContainer>
-            </div>
-            <div id="aboutus" className={classes.aboutusSection}>
-            </div>
-            <div id="contactus" className={classes.contactusSection}>
+                </div>
+              </GridItem>
+            </GridContainer>
+            <GridContainer>
+              <GridItem>
+                <div id="aboutus" className={classes.section}>
+                  <div className={classes.sectionTitle}>About Us</div>
+                  <AboutusSection />
+                </div>
+              </GridItem>
+            </GridContainer>
+            <div id="contactus" className={classes.section}>
             </div>
           </div>
         </div>

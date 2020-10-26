@@ -1,4 +1,6 @@
 import React from "react";
+// nodejs library that concatenates classes
+import classNames from "classnames";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 // core components
@@ -9,10 +11,16 @@ import GridItem from "components/Grid/GridItem.js";
 import Button from "components/CustomButtons/Button.js";
 import HeaderLinks from "components/Header/HeaderLinks.js";
 import Parallax from "components/Parallax/Parallax.js";
+import Map from 'components/Map/Map.js'
 
 // @material-ui/icons
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import TelegramIcon from "@material-ui/icons/Telegram";
+
+// section part
+import PricingSection from "./Sections/pricing_section.js";
+import AboutusSection from "./Sections/aboutus_section.js";
+import ContactusSection from "./Sections/contactus_section.js";
 
 import styles from "assets/jss/transcribe/landing.js";
 
@@ -69,7 +77,23 @@ export default function LandingPage(props) {
           </GridContainer>
         </div>
       </Parallax>
+      <section>
+        <div className={classNames(classes.main, classes.mainRaised)}>
+          <div className={classes.container}>
+            <div id="pricing" className={classes.section}>
+              <PricingSection />
+            </div>
+            <div id="aboutus" className={classes.section}>
+              <AboutusSection />
+            </div>
+            <div id="contactus" className={classes.section}>
+              <ContactusSection />
+              <Map/>
+            </div>
+          </div>
+        </div>
+      </section>
       <Footer />
-    </div>
+    </div >
   );
 }

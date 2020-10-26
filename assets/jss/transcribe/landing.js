@@ -4,7 +4,9 @@ const landingPageStyle = {
   container: {
     zIndex: "12",
     color: "#FFFFFF",
-    ...container
+    padding: "0 15px",
+    ...container,
+    width: "calc(100% - 30px)",
   },
   title: {
     ...title,
@@ -33,13 +35,8 @@ const landingPageStyle = {
   },
   section: {
     width: "100%",
-    padding: "50px 0px 0px 0px",
-  },
-  sectionTitle: {
-    fontSize: "30px",
-    fontWeight: "bold",
-    color: "grey"
-  },
+    padding: "80px 0px 0px 0px",
+  }
 };
 
 export default landingPageStyle;

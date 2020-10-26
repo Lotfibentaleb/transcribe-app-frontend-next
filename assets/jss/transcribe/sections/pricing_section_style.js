@@ -1,4 +1,3 @@
-import { cardTitle, title } from "assets/jss/nextjs-material-kit.js";
 import imagesStyle from "assets/jss/nextjs-material-kit/imagesStyles.js";
 
 const pricingCardStyle = {
@@ -7,8 +6,7 @@ const pricingCardStyle = {
     marginRight: "auto !important",
   },
   pricingCard: {
-    padding: " 20px 0px",
-    border: "2px #cbe5f5 solid",
+    border: "2px #3f51b5 solid",
     transition: "all .3s ease-in-out",
     position: "relative",
     willChange: "transform",
@@ -28,14 +26,15 @@ const pricingCardStyle = {
       left: "0",
       width: "0",
       height: "5px",
-      backgroundColor: "#2a93d5",
+      backgroundColor: "#3f51b5",
       webkitTransition: ".5s",
       transition: ".5s",
     },
   },
-  section: {
-    padding: "70px 50px",
-    textAlign: "center"
+  sectionTitle: {
+    fontSize: "30px",
+    fontWeight: "bold",
+    color: "grey"
   },
   ...imagesStyle,
   itemGrid: {
@@ -45,21 +44,20 @@ const pricingCardStyle = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    // paddingTop: "20px",
   },
   cardTitleIcon: {
     fontSize: "50px",
-    color: "#2276aa",
+    color: "#3f51b5",
     marginRight: "20px"
   },
   cardTitle: {
-    color: "#2276aa",
+    color: "#3f51b5",
     fontSize: "28px",
     fontWeight: "700",
     lineHeight: "1.5"
   },
   smallTitle: {
-    color: "#2276aa",
+    color: "#3f51b5",
     fontSize: "14px"
   },
   cardBody: {
@@ -75,12 +73,12 @@ const pricingCardStyle = {
     justifyContent: "center !important"
   },
   button: {
-    backgroundColor: "#2276aa",
+    backgroundColor: "#3f51b5",
     "&:hover": {
-      backgroundColor: "#2276aa",
+      backgroundColor: "#3f51b5",
     },
     "&:focus": {
-      backgroundColor: "#2276aa",
+      backgroundColor: "#3f51b5",
     }
   },
 };

@@ -75,25 +75,15 @@ export default function LandingPage(props) {
           </GridContainer>
         </div>
       </Parallax>
-      <section className={classes.section}>
+      <section>
         <div className={classNames(classes.main, classes.mainRaised)}>
           <div className={classes.container}>
-            <GridContainer>
-              <GridItem>
-                <div id="pricing" className={classes.section}>
-                  <div className={classes.sectionTitle}>Pricing</div>
-                  <PricingSection />
-                </div>
-              </GridItem>
-            </GridContainer>
-            <GridContainer>
-              <GridItem>
-                <div id="aboutus" className={classes.section}>
-                  <div className={classes.sectionTitle}>About Us</div>
-                  <AboutusSection />
-                </div>
-              </GridItem>
-            </GridContainer>
+            <div id="pricing" className={classes.section}>
+              <PricingSection />
+            </div>
+            <div id="aboutus" className={classes.section}>
+              <AboutusSection />
+            </div>
             <div id="contactus" className={classes.section}>
             </div>
           </div>

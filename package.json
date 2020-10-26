@@ -23,6 +23,7 @@
     "chartist": "0.10.1",
     "classnames": "2.2.6",
     "date-fns": "^2.0.0-beta.5",
+    "google-map-react": "^2.1.8",
     "history": "5.0.0",
     "jspdf": "^2.1.1",
     "material-ui-flags": "^1.0.15",

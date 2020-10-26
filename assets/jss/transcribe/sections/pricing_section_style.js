@@ -44,6 +44,7 @@ const pricingCardStyle = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: "30px",
   },
   cardTitleIcon: {
     fontSize: "50px",
@@ -74,6 +75,7 @@ const pricingCardStyle = {
   },
   button: {
     backgroundColor: "#3f51b5",
+    marginBottom: "30px",
     "&:hover": {
       backgroundColor: "#3f51b5",
     },

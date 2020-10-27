@@ -38,6 +38,7 @@
     "react-dom": "16.13.1",
     "react-dropzone": "^11.2.0",
     "react-google-maps": "9.4.5",
+    "react-paypal-checkout": "^1.0.9",
     "react-swipeable-views": "0.13.9",
     "webpack": "4.44.1"
   },

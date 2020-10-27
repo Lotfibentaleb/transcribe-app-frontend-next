@@ -19,7 +19,6 @@ class Transcribe {
           return response.data;
         },
         error => {
-          console.log('error', error)
           var json = '{"msg":"S3 upload failure", "success": "false", "index": 0, "error":' + error + '}';
           return JSON.parse(json);
         }
@@ -31,7 +30,6 @@ class Transcribe {
     jsonObj.s3_url = s3_url;
     jsonObj.lang = spokenLanguage;
     jsonObj.index = index;
-    
     return axios
       .post(API_URL + "transcribe/" + mediaId, jsonObj, { headers: authHeader() })
       .then(

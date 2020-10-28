@@ -55,7 +55,7 @@ export default function AdminNavbarLinks() {
   };
   const handleSignout = () => {
     if(authAPI.signout() === true) {
-      Router.push("/auth/signin");
+      Router.push("/landing");
     } else {
       console.log("Unkown Error")
     }

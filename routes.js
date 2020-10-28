@@ -19,6 +19,7 @@
 import Dashboard from "@material-ui/icons/Dashboard";
 import Movie from "@material-ui/icons/Movie";
 import People from "@material-ui/icons/People";
+import AttachMoney from "@material-ui/icons/AttachMoney";
 
 const dashboardRoutes = [
   {
@@ -39,6 +40,13 @@ const dashboardRoutes = [
     path: "/user",
     name: "User",
     icon: People,
+
+    layout: "/admin",
+  },
+  {
+    path: "/price",
+    name: "Price",
+    icon: AttachMoney,
 
     layout: "/admin",
   },

@@ -12,5 +12,6 @@ module.exports = withPlugins([[withSass], [withImages], [withCSS]], {
   },
   publicRuntimeConfig: {
     API_ENDPOINT: process.env.API_ENDPOINT,
+    PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
   },
 });

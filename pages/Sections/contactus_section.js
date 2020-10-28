@@ -81,7 +81,6 @@ export default function ContactusSection() {
         }
         break;
       case "lastName":
-        console.log(contactInfo.lastName)
         if (contactInfo.lastName.length < 3) {
           setContactInfoValidate(contactInfoValidate => ({
             ...contactInfoValidate,

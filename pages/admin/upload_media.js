@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
-import Router from "next/router";
+import React, { useEffect, useState } from "react";
 import Dropzone from 'react-dropzone';
 // @material-ui/core components
 import Box from '@material-ui/core/Box';
@@ -19,7 +18,6 @@ import Select from '@material-ui/core/Select';
 import IconButton from '@material-ui/core/IconButton';
 // @material-ui/icons
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
-import DeleteIcon from "@material-ui/icons/Delete";
 import RecordVoiceOverIcon from "@material-ui/icons/RecordVoiceOver";
 import { Typography } from "@material-ui/core";
 import {
@@ -41,11 +39,21 @@ import CardBody from "components/Card/CardBody.js";
 // call api
 import uploadMediaAPI from "apis/upload-media";
 import transcribeAPI from "apis/transcribe";
+// payment components
+import PaypalBtn from 'react-paypal-checkout';
 
 // style
 import useStyles from "assets/jss/transcribe/admin/upload_media.js";
 
+// get paypal client id from .env file
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
+const PAYPAL_CLIENT_ID = publicRuntimeConfig.PAYPAL_CLIENT_ID;
+
 function UploadMedia() {
+  ///////////////////////////////////////////////////////////////////
+  ////////////////// common variables and handlers //////////////////
+  ///////////////////////////////////////////////////////////////////
   // styles
   const classes = useStyles();
   // snackbar variables and handle events
@@ -66,7 +74,7 @@ function UploadMedia() {
   const [activeStep, setActiveStep] = React.useState(0);
 
   const getSteps = () => {
-    return ['Upload File', 'Add Details', 'Transcribe'];
+    return ['Upload File', 'Add Details', 'Payment', 'Start Transcribe', 'Transcribing'];
   }
   const steps = getSteps();
 
@@ -76,6 +84,18 @@ function UploadMedia() {
     setAcceptedFiles(selectedFiles)
   }
 
+  // common javascript functions
+  const getJSONP = (url, success) => {
+    var req = new XMLHttpRequest();
+    req.open('GET', url, false);
+    req.send(null);
+    return req.responseText;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  ///////////////////// step 1 File upload part /////////////////////
+  ///////////////////////////////////////////////////////////////////
+
   // upload progress variables and handlers
   const [progress, setProgress] = React.useState([]);
   const [total, setTotal] = React.useState([]);
@@ -83,6 +103,8 @@ function UploadMedia() {
   const [speed, setSpeed] = React.useState([]);
   const [uploadStates, setUploadStates] = React.useState([]); // initial, loading, success, failure, 
   const [allUploadState, setAllUploadState] = React.useState('initial'); // initial, loading, success, failure, 
+  // uploaded file information
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const callbackProgress = (index, progressArray, totalArray, loadedArray, speedArray) => {
     var tempArray = [];
@@ -105,162 +127,6 @@ function UploadMedia() {
       tempArray.push(element)
     });
     setSpeed(tempArray);
-  }
-
-  const handleRemoveFile = (event, acceptedFile) => {
-    console.log('acceptedFile', acceptedFile)
-    var tempArray = [];
-    for (var i = 0; i < acceptedFiles.length; i++) {
-      if (acceptedFile.name !== acceptedFiles[i].name) {
-        tempArray.push(acceptedFiles[i]);
-      }
-    }
-    console.log('tempArray', tempArray);
-    setAcceptedFiles(tempArray)
-  }
-
-  // uploaded file information
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  // transcribed file information
-  const [transcribedFiles, setTranscribedFiles] = useState([]);
-  const [transcribeStates, setTranscribeStates] = useState([]);
-  const [allTranscribeState, setAllTranscribeState] = useState('success');
-
-  // spoken language select component
-  const [spokenLanguage, setSpokenLanguage] = React.useState("en-US");
-  const handleChangeLanguage = (event) => {
-    setSpokenLanguage(event.target.value);
-  };
-
-  // transcribe handler
-  const handleTranscribeStart = () => {
-    let state = [];
-    setTranscribedFiles([]);
-    for (var i = 0; i < uploadedFiles.length; i++) {
-      state.push('transcribing');
-    }
-    setTranscribeStates(state);
-    setAllTranscribeState('transcribing');
-    setActiveStep(2);
-    for (var i = 0; i < uploadedFiles.length; i++) {
-      transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage)
-        .then(
-          response => {
-            if (response.success === 'false') {
-              state[response.index] = 'failure'
-            } else if (response.success === 'true') {
-              state[response.index] = 'success'
-            }
-            var tempArray = [];
-            state.forEach(element => {
-              tempArray.push(element);
-            });
-            setTranscribeStates(tempArray);
-            let copiedResponse = response;
-            var data = getJSONP(copiedResponse.transcribe_url)
-            copiedResponse.transcript = JSON.parse(data).results.transcripts[0].transcript;
-            setTranscribedFiles(transcribedFiles => [...transcribedFiles, copiedResponse]);
-          },
-          error => {
-            console.log(error)
-            setTranscribeStates(state);
-          }
-        )
-    }
-
-  }
-
-  // useEffect method
-  useEffect(() => {
-    fileUpload();
-  }, [acceptedFiles])
-
-  useEffect(() => {
-    changeAllUploadState();
-  }, [uploadStates])
-
-  useEffect(() => {
-    changeAllTranscribeState();
-  }, [transcribeStates])
-
-  // file upload handler
-  const fileUpload = () => {
-    var startTime;
-    let progresssArray = [];
-    let totalArray = [];
-    let loadedArray = [];
-    let speedArray = [];
-    let state = [];
-    let uploadedArray = [];
-    for (var i = 0; i < acceptedFiles.length; i++) {
-      progresssArray.push(0);
-      totalArray.push(0);
-      loadedArray.push(0);
-      speedArray.push(0);
-      state.push('loading');
-    }
-    console.log("acceptedfiles length", acceptedFiles.length);
-    setUploadStates(state);
-    if (acceptedFiles.length !== 0) {
-      setAllUploadState("loading");
-    }
-    for (var i = 0; i < acceptedFiles.length; i++) {
-      startTime = new Date();
-      if (acceptedFiles.length !== 0) {
-        var fileUploadInfo = new FormData();
-        fileUploadInfo.append('file', acceptedFiles[i]);
-        fileUploadInfo.append('index', i);
-        uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
-          .then(
-            response => {
-              if (response.success === 'false') {
-                state[response.index] = 'failure'
-              } else if (response.success === 'true') {
-                state[response.index] = 'success'
-              }
-              uploadedArray.push(response);
-              var tempArray = [];
-              state.forEach(element => {
-                tempArray.push(element);
-              });
-              setUploadStates(tempArray);
-            },
-            error => {
-              console.log(error)
-              setUploadStates(state);
-            }
-          )
-      }
-    }
-    setUploadedFiles(uploadedArray);
-  }
-
-  const changeAllUploadState = () => {
-    let count = 0;
-    for (var i = 0; i < uploadStates.length; i++) {
-      if (uploadStates[i] === 'success') {
-        count++;
-      }
-    }
-    if (count === uploadStates.length && count !== 0) {
-      setMessageType("success");
-      setAllUploadState("success");
-      setMessage("All files are uploaded successfully!");
-      setOpenMessage(true);
-      setActiveStep(1);
-    }
-  }
-
-  const changeAllTranscribeState = () => {
-    var count = 0;
-    for (var i = 0; i < transcribeStates.length; i++) {
-      if (transcribeStates[i] === 'transcribing') {
-        count++;
-      }
-    }
-    if (count === 0) {
-      setAllTranscribeState('success');
-    }
   }
 
   const renderUploadStateCircularProgress = () => {
@@ -296,13 +162,212 @@ function UploadMedia() {
     }
   }
 
-  // common javascript functions
-  const getJSONP = (url, success) => {
-    var req = new XMLHttpRequest();
-    req.open('GET', url, false);
-    req.send(null);
-    return req.responseText;
+  useEffect(() => {
+    fileUpload();
+  }, [acceptedFiles])
+
+  // file upload handler
+  const fileUpload = () => {
+    let progresssArray = [];
+    let totalArray = [];
+    let loadedArray = [];
+    let speedArray = [];
+    let state = [];
+    let uploadedArray = [];
+    for (var i = 0; i < acceptedFiles.length; i++) {
+      progresssArray.push(0);
+      totalArray.push(0);
+      loadedArray.push(0);
+      speedArray.push(0);
+      state.push('loading');
+    }
+    setUploadStates(state);
+    if (acceptedFiles.length !== 0) {
+      setAllUploadState("loading");
+    }
+    for (var i = 0; i < acceptedFiles.length; i++) {
+      var startTime = new Date();
+      if (acceptedFiles.length !== 0) {
+        var fileUploadInfo = new FormData();
+        fileUploadInfo.append('file', acceptedFiles[i]);
+        fileUploadInfo.append('index', i);
+        uploadMediaAPI.upload(fileUploadInfo, callbackProgress, i, startTime, progresssArray, totalArray, loadedArray, speedArray)
+          .then(
+            response => {
+              if (response.success === 'false') {
+                state[response.index] = 'failure'
+              } else if (response.success === 'true') {
+                state[response.index] = 'success'
+              }
+              uploadedArray.push(response);
+              var tempArray = [];
+              state.forEach(element => {
+                tempArray.push(element);
+              });
+              setUploadStates(tempArray);
+            },
+            error => {
+              console.log(error)
+              setUploadStates(state);
+            }
+          )
+      }
+    }
+    setUploadedFiles(uploadedArray);
   }
+
+  useEffect(() => {
+    changeAllUploadState();
+  }, [uploadStates])
+
+  const changeAllUploadState = () => {
+    let count = 0;
+    for (var i = 0; i < uploadStates.length; i++) {
+      if (uploadStates[i] === 'success') {
+        count++;
+      }
+    }
+    if (count === uploadStates.length && count !== 0) {
+      setMessageType("success");
+      setAllUploadState("success");
+      setMessage("All files are uploaded successfully!");
+      setOpenMessage(true);
+      setActiveStep(1);
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  /////////////////// step 2 select langauge part ///////////////////
+  ///////////////////////////////////////////////////////////////////
+  // spoken language select component
+  const [spokenLanguage, setSpokenLanguage] = React.useState("");
+  const handleChangeLanguage = (event) => {
+    setSpokenLanguage(event.target.value);
+    setActiveStep(2);
+  };
+
+  ///////////////////////////////////////////////////////////////////
+  /////////////////////// step 3 payment part ///////////////////////
+  ///////////////////////////////////////////////////////////////////
+  // payment variables and handlers
+  let envPayment = 'sandbox'; // you can set here to 'production' for production
+  let currencyPayment = 'USD'; // or you can set this value from your props or state  
+  let totalAmountPayment = 0;  // same as above, this is the total amount (based on currency) to be 
+  for( var i = 0; i< uploadedFiles.length; i++) {
+    totalAmountPayment += uploadedFiles[i].price;
+  }
+  let localePayment = 'en_US';
+  // For Customize Style: https://developer.paypal.com/docs/checkout/how-to/customize-button/
+  let stylePayment = {
+    'label': 'pay',
+    'tagline': false,
+    'size': 'medium',
+    'shape': 'pill',
+    'color': 'gold'
+  };
+  
+  const clientPayment = {
+    sandbox: PAYPAL_CLIENT_ID,
+    production: 'YOUR-PRODUCTION-APP-ID',
+  }
+
+  const [paymentState, setPaymentState] = React.useState({})
+
+  const onSuccessPayment = (payment) => {
+    // Congratulation, it came here means everything's fine!
+    setPaymentState(payment);
+    if (payment.paid === true) {
+      setMessageType("success");
+      setMessage("Payment succeed!");
+      setOpenMessage(true);
+      setActiveStep(3);
+    } else {
+      setMessageType("error");
+      setMessage("Payment Failed, Try Again!");
+      setOpenMessage(true);
+    }
+  }
+
+  const onCancelPayment = (data) => {
+    // User pressed "cancel" or close Paypal's popup!
+    console.log('The payment was cancelled!', data);
+  }
+
+  const onErrorPayment = (err) => {
+    // The main Paypal's script cannot be loaded or somethings block the loading of that script!
+    console.log("Error!", err);
+  }
+
+
+  ///////////////////////////////////////////////////////////////////
+  ////////////////// step 4 start transcribe part ///////////////////
+  ///////////////////////////////////////////////////////////////////
+  // transcribed file information
+  const [transcribedFiles, setTranscribedFiles] = useState([]);
+  const [transcribeStates, setTranscribeStates] = useState([]);
+  const [allTranscribeState, setAllTranscribeState] = useState('success');
+  // transcribe handler
+  const handleTranscribeStart = () => {
+    let state = [];
+    setTranscribedFiles([]);
+    for (var i = 0; i < uploadedFiles.length; i++) {
+      state.push('transcribing');
+    }
+    setTranscribeStates(state);
+    setAllTranscribeState('transcribing');
+    setActiveStep(4);
+    for (var i = 0; i < uploadedFiles.length; i++) {
+      transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage)
+        .then(
+          response => {
+            if (response.success === 'false') {
+              state[response.index] = 'failure'
+            } else if (response.success === 'true') {
+              state[response.index] = 'success'
+            }
+            var tempArray = [];
+            state.forEach(element => {
+              tempArray.push(element);
+            });
+            setTranscribeStates(tempArray);
+            let copiedResponse = response;
+            var data = getJSONP(copiedResponse.transcribe_url)
+            copiedResponse.transcript = JSON.parse(data).results.transcripts[0].transcript;
+            setTranscribedFiles(transcribedFiles => [...transcribedFiles, copiedResponse]);
+          },
+          error => {
+            console.log(error)
+            setTranscribeStates(state);
+          }
+        )
+    }
+
+  }
+
+  useEffect(() => {
+    changeAllTranscribeState();
+  }, [transcribeStates])
+
+  const changeAllTranscribeState = () => {
+    var count = 0;
+    if (transcribeStates.length != 0) {
+      for (var i = 0; i < transcribeStates.length; i++) {
+        if (transcribeStates[i] === 'transcribing') {
+          count++;
+        }
+      }
+      if (count === 0) {
+        setAllTranscribeState('success');
+        setActiveStep(5);
+      }
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  //////////////////// step 5 transcribing part /////////////////////
+  ///////////////////////////////////////////////////////////////////
+
+
 
   return (
     <div>
@@ -332,7 +397,7 @@ function UploadMedia() {
             </CardHeader>
             <CardBody className={classes.cardBody}>
               {/* Stepper part */}
-              <Grid item sm={12} md={10} lg={6}>
+              <Grid item sm={12} md={12} lg={10}>
                 <Stepper activeStep={activeStep}>
                   {steps.map((label, index) => {
                     const stepProps = {};
@@ -371,9 +436,9 @@ function UploadMedia() {
                   )}
                 </Dropzone>
               </Grid>
-              {/* step 1 part */}
+              {/* step 1 part file upload */}
               <Grid item className={classes.padding20}>
-                <div className={classes.stepTitle}>Step 1: Media Upload</div>
+                <div className={classes.stepTitle}>Step 1: Upload File</div>
                 <Grid container>
                   {renderUploadStateCircularProgress()}
                   {acceptedFiles.map((acceptedFile, index) => {
@@ -439,84 +504,131 @@ function UploadMedia() {
                   })}
                 </Grid>
               </Grid>
-              {/* step 2 part */}
+              {/* step 2 part select language */}
               {
-                activeStep === 1 || activeStep === 2 ?
+                activeStep >= 1 ?
                   <Grid item className={classes.padding20}>
-                    <div className={classes.stepTitle}>Step 2: Details</div>
+                    <div className={classes.stepTitle}>Step 2: Add Details</div>
                     <Grid container>
                       <Grid item>
-                        <FormControl className={classes.formControl}>
-                          <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
-                          <Select
-                            labelId="demo-customized-select-label"
-                            id="demo-customized-select"
-                            value={spokenLanguage}
-                            onChange={handleChangeLanguage}
-                          >
-                            <MenuItem value="en-US">
-                              English
+                        <Box pt={2} >
+                          <FormControl className={classes.formControl}>
+                            <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
+                            <Select
+                              labelId="demo-customized-select-label"
+                              id="demo-customized-select"
+                              value={spokenLanguage}
+                              onChange={handleChangeLanguage}
+                            >
+                              <MenuItem value="">None</MenuItem>
+                              <MenuItem value="en-US">
+                                English
                               <IconButton><IconFlagUS /></IconButton>
-                              <IconButton><IconFlagUK /></IconButton>
-                              <IconButton><IconFlagAU /></IconButton>
-                            </MenuItem>
-                            <MenuItem value="fr">
-                              French
+                                <IconButton><IconFlagUK /></IconButton>
+                                <IconButton><IconFlagAU /></IconButton>
+                              </MenuItem>
+                              <MenuItem value="fr">
+                                French
                               <IconButton><IconFlagFR /></IconButton>
-                            </MenuItem>
-                            <MenuItem value="de">
-                              German
+                              </MenuItem>
+                              <MenuItem value="de">
+                                German
                               <IconButton><IconFlagDE /></IconButton>
-                            </MenuItem>
-                            <MenuItem value="es">
-                              Spanish
+                              </MenuItem>
+                              <MenuItem value="es">
+                                Spanish
                               <IconButton><IconFlagES /></IconButton>
-                            </MenuItem>
-                          </Select>
-                        </FormControl>
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
                       </Grid>
                     </Grid>
-                    <Button variant="contained" color="primary" size="large" onClick={(event) => handleTranscribeStart()}>
-                      <RecordVoiceOverIcon />
-                      <Typography className={classes.iconBtnTextPos}>Start Transcribing Now</Typography>
-                    </Button>
+
                   </Grid>
                   :
                   ''
               }
-              {/* step 3 part */}
+              {/* step 3 part payment part */}
               {
-                activeStep === 2 ?
+                activeStep >= 2 ?
                   <Grid item className={classes.padding20}>
-                    <div className={classes.stepTitle}>Step 3: Transcribe</div>
+                    <div className={classes.stepTitle}>Step 3: Payment</div>
                     <Grid container>
                       <Grid item>
-                        {
-                          allTranscribeState === 'transcribing' ?
-                            <div>
-                              <CircularProgress size={14} color="secondary" /> {transcribeStates.length}Files are transcribing
+                        <Box pt={2} >
+                          <PaypalBtn
+                            env={envPayment}
+                            client={clientPayment}
+                            currency={currencyPayment}
+                            total={totalAmountPayment}
+                            locale={localePayment}
+                            style={stylePayment}
+                            onError={onErrorPayment}
+                            onSuccess={onSuccessPayment}
+                            onCancel={onCancelPayment}
+                          />
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  :
+                  ''
+              }
+              {/* step 4 part start transcribe */}
+              {
+                activeStep >= 3 ?
+                  <Grid item className={classes.padding20}>
+                    <div className={classes.stepTitle}>Step 4: Start Transcribe</div>
+                    <Grid container>
+                      <Grid item>
+                        <Box pt={2} >
+                          <Button variant="contained" color="primary" size="large" onClick={(event) => handleTranscribeStart()}>
+                            <RecordVoiceOverIcon />
+                            <Typography className={classes.iconBtnTextPos}>Start Transcribing Now</Typography>
+                          </Button>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  :
+                  ''
+              }
+              {/* step 5 part transcribing part */}
+              {
+                activeStep >= 4 ?
+                  <Grid item className={classes.padding20}>
+                    <div className={classes.stepTitle}>Step 5: Transcribing</div>
+                    <Grid container>
+                      <Grid item>
+                        <Box pt={2} >
+                          {
+                            allTranscribeState === 'transcribing' ?
+                              <div>
+                                <CircularProgress size={14} color="secondary" /> {transcribeStates.length}Files are transcribing
                             </div>
-                            :
-                            ''
-                        }
-                        {transcribedFiles.map((transcribedFile, index) => {
-                          return (
-                            <div key={index}>
-                              <Box pt={1}>
-                                <Button variant="contained" color="secondary" size="small" >
-                                  <Typography className={classes.iconBtnTextPos}>View Content of {transcribedFile.file_name}</Typography>
-                                </Button>
-                              </Box>
-                              <Box pt={1}>
-                                <div>
-                                  {
-                                    transcribedFile.transcript !== undefined && transcribedFile.transcript
-                                  }
-                                </div>
-                              </Box>
-                            </div>
-                          );
-                        })}
+                              :
+                              ''
+                          }
+                          {transcribedFiles.map((transcribedFile, index) => {
+                            return (
+                              <div key={index}>
+                                <Box pt={1}>
+                                  <Button variant="contained" color="secondary" size="small" >
+                                    <Typography className={classes.iconBtnTextPos}>View Content of {transcribedFile.file_name}</Typography>
+                                  </Button>
+                                </Box>
+                                <Box pt={1}>
+                                  <div>
+                                    {
+                                      transcribedFile.transcript !== undefined && transcribedFile.transcript
+                                    }
+                                  </div>
+                                </Box>
+                              </div>
+                            );
+                          })}
+                        </Box>
                       </Grid>
                     </Grid>
                   </Grid>

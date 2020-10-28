@@ -178,9 +178,9 @@ function User() {
       userAPI.addUser(userInfo)
         .then(
           response => {
-            if (response.message === 'Request failed with status code 401') {
+            if (response.msg === 'Request failed with status code 401') {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
               setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
@@ -219,9 +219,9 @@ function User() {
       userAPI.editUser(userInfo, editableID)
         .then(
           response => {
-            if (response.message === 'Request failed with status code 401') {
+            if (response.msg === 'Request failed with status code 401') {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
               setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
@@ -252,9 +252,9 @@ function User() {
       userAPI.deleteUser(id)
         .then(
           response => {
-            if (response.message === 'Request failed with status code 401') {
+            if (response.msg === 'Request failed with status code 401') {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
               setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
@@ -361,9 +361,9 @@ function User() {
     userAPI.users()
       .then(
         response => {
-          if (response.message === 'Request failed with status code 401') {
+          if (response.msg === 'Request failed with status code 401') {
             setMessageType("error")
-            setMessage(response.message)
+            setMessage(response.msg)
             setOpenMessage(true);
             setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           } else {

@@ -182,9 +182,9 @@ function Media() {
     mediaAPI.getMediaByDate(start_date, end_date)
       .then(
         response => {
-          if (response.message === 'Request failed with status code 401') {
+          if (response.msg === 'Request failed with status code 401') {
             setMessageType("error")
-            setMessage(response.message)
+            setMessage(response.msg)
             setOpenMessage(true);
             setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }
@@ -238,9 +238,9 @@ function Media() {
       mediaAPI.deleteMedia(id)
         .then(
           response => {
-            if (response.message === 'Request failed with status code 401') {
+            if (response.msg === 'Request failed with status code 401') {
               setMessageType("error")
-              setMessage(response.message)
+              setMessage(response.msg)
               setOpenMessage(true);
               setTimeout(function () { Router.push("/auth/signin"); }, 5000);
             }
@@ -318,9 +318,9 @@ function Media() {
     transcribeAPI.transcribe(row.s3_url, row.id)
       .then(
         response => {
-          if (response.message === 'Request failed with status code 401') {
+          if (response.msg === 'Request failed with status code 401') {
             setMessageType("error")
-            setMessage(response.message)
+            setMessage(response.msg)
             setOpenMessage(true);
             setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }
@@ -359,9 +359,9 @@ function Media() {
     mediaAPI.medias()
       .then(
         response => {
-          if (response.message === 'Request failed with status code 401') {
+          if (response.msg === 'Request failed with status code 401') {
             setMessageType("error")
-            setMessage(response.message)
+            setMessage(response.msg)
             setOpenMessage(true);
             setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           }

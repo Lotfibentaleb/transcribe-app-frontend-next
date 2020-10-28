@@ -252,7 +252,10 @@ function UploadMedia() {
   // payment variables and handlers
   let envPayment = 'sandbox'; // you can set here to 'production' for production
   let currencyPayment = 'USD'; // or you can set this value from your props or state  
-  let totalAmountPayment = 1;  // same as above, this is the total amount (based on currency) to be 
+  let totalAmountPayment = 0;  // same as above, this is the total amount (based on currency) to be 
+  for( var i = 0; i< uploadedFiles.length; i++) {
+    totalAmountPayment += uploadedFiles[i].price;
+  }
   let localePayment = 'en_US';
   // For Customize Style: https://developer.paypal.com/docs/checkout/how-to/customize-button/
   let stylePayment = {
@@ -282,14 +285,12 @@ function UploadMedia() {
       setMessageType("error");
       setMessage("Payment Failed, Try Again!");
       setOpenMessage(true);
-      setActiveStep(2);
     }
   }
 
   const onCancelPayment = (data) => {
     // User pressed "cancel" or close Paypal's popup!
     console.log('The payment was cancelled!', data);
-    setActiveStep(3);
   }
 
   const onErrorPayment = (err) => {

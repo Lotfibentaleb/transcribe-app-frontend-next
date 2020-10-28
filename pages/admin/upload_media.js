@@ -45,6 +45,11 @@ import PaypalBtn from 'react-paypal-checkout';
 // style
 import useStyles from "assets/jss/transcribe/admin/upload_media.js";
 
+// get paypal client id from .env file
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
+const PAYPAL_CLIENT_ID = publicRuntimeConfig.PAYPAL_CLIENT_ID;
+
 function UploadMedia() {
   ///////////////////////////////////////////////////////////////////
   ////////////////// common variables and handlers //////////////////
@@ -257,8 +262,9 @@ function UploadMedia() {
     'shape': 'pill',
     'color': 'gold'
   };
+  
   const clientPayment = {
-    sandbox: 'AbCE__8JC8JJLxeoCLm1akgp0Z6QUBycGXWLPTOwj7e2TPUUHFbKouJW-Wgd309jkdvBMpmuiVqLuyfu',
+    sandbox: PAYPAL_CLIENT_ID,
     production: 'YOUR-PRODUCTION-APP-ID',
   }
 

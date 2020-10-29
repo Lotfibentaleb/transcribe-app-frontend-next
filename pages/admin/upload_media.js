@@ -253,7 +253,7 @@ function UploadMedia() {
   let envPayment = 'sandbox'; // you can set here to 'production' for production
   let currencyPayment = 'USD'; // or you can set this value from your props or state  
   let totalAmountPayment = 0;  // same as above, this is the total amount (based on currency) to be 
-  for( var i = 0; i< uploadedFiles.length; i++) {
+  for (var i = 0; i < uploadedFiles.length; i++) {
     totalAmountPayment += uploadedFiles[i].price;
   }
   let localePayment = 'en_US';
@@ -265,7 +265,7 @@ function UploadMedia() {
     'shape': 'pill',
     'color': 'gold'
   };
-  
+
   const clientPayment = {
     sandbox: PAYPAL_CLIENT_ID,
     production: 'YOUR-PRODUCTION-APP-ID',
@@ -414,6 +414,7 @@ function UploadMedia() {
               <Grid item sm={12} md={12} lg={12} className={classes.padding20}>
                 <Dropzone
                   onDrop={selectedFiles => { addKeyInAcceptedFiles(selectedFiles) }}
+                  accept="audio/mpeg, audio/wav, video/mpeg, video/webm, audio/ogg, video/ogg"
                 >
                   {({ getRootProps, getInputProps }) => (
                     <section>

@@ -271,16 +271,35 @@ function Media() {
   const [mediaInfo, setMediaInfo] = React.useState([]);
   const handleOpenFileInformationDialog = (event, id) => {
     setMediaInfo({});
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].id === id) {
-        setMediaInfo(rows[i]);
-        if (rows[i].transcribe_status === 1) {
-          var data = getJSONP(rows[i].transcribe_url)
-          rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+    mediaAPI.getRealMediaURL(id)
+      .then(
+        response => {
+          if (response.msg === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.msg)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
+          }
+          if (response.success === 'true') {
+            for (var i = 0; i < rows.length; i++) {
+              if (rows[i].id === id) {
+                if (rows[i].transcribe_status === 1) {
+                  var data = getJSONP(response.transcribe_url)
+                  rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+                  setMediaInfo(rows[i]);
+                }
+                break;
+              }
+            }
+          }
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
         }
-        break;
-      }
-    }
+      )
+
     setOpenFileInformationDialog(true);
   }
   const handleCloseFileInformationDialog = () => {
@@ -292,16 +311,35 @@ function Media() {
   const [openTranscriptPreviewDialog, setOpenTranscriptPreviewDialog] = React.useState(false);
   const handleOpenTranscriptPreviewDialog = (event, id) => {
     setMediaInfo({});
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].id === id) {
-        if (rows[i].transcribe_status === 1) {
-          var data = getJSONP(rows[i].transcribe_url)
-          rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
-          setMediaInfo(rows[i]);
+    mediaAPI.getRealMediaURL(id)
+      .then(
+        response => {
+          if (response.msg === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.msg)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
+          }
+          if (response.success === 'true') {
+            for (var i = 0; i < rows.length; i++) {
+              if (rows[i].id === id) {
+                if (rows[i].transcribe_status === 1) {
+                  var data = getJSONP(response.transcribe_url)
+                  rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+                  setMediaInfo(rows[i]);
+                }
+                break;
+              }
+            }
+          }
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
         }
-        break;
-      }
-    }
+      )
+
     setOpenTranscriptPreviewDialog(true);
   }
   const handleCloseTranscriptPreviewDialog = () => {
@@ -392,16 +430,35 @@ function Media() {
   // download pdf file
   const downloadPDF = (event, id) => {
     if (id !== undefined) {
-      for (var i = 0; i < rows.length; i++) {
-        if (rows[i].id === id) {
-          if (rows[i].transcribe_status === 1) {
-            var data = getJSONP(rows[i].transcribe_url)
-            rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
-            downloadPDFModule(rows[i].transcript);
+      mediaAPI.getRealMediaURL(id)
+        .then(
+          response => {
+            if (response.msg === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
+            }
+            if (response.success === 'true') {
+              for (var i = 0; i < rows.length; i++) {
+                if (rows[i].id === id) {
+                  if (rows[i].transcribe_status === 1) {
+                    var data = getJSONP(response.transcribe_url)
+                    rows[i].transcript = JSON.parse(data).results.transcripts[0].transcript;
+                    downloadPDFModule(rows[i].transcript);
+                  }
+                  break;
+                }
+              }
+            }
+          },
+          error => {
+            setMessageType("error")
+            setMessage(error)
+            setOpenMessage(true);
           }
-          break;
-        }
-      }
+        )
+
     } else {
       downloadPDFModule(mediaInfo.transcript);
     }

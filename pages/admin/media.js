@@ -49,6 +49,14 @@ import transcribeAPI from "apis/transcribe";
 // pdf convert module
 import { jsPDF } from "jspdf";
 
+// payment components
+import PaypalBtn from 'react-paypal-checkout';
+
+// get paypal client id from .env file
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
+const PAYPAL_CLIENT_ID = publicRuntimeConfig.PAYPAL_CLIENT_ID;
+
 // style
 import useStyles from "assets/jss/transcribe/admin/media.js";
 
@@ -348,37 +356,96 @@ function Media() {
 
 
   // transcribe start handler
-  const handleTranscribeStart = (event, row) => {
+  const [selectedMedia, setSelectedMedia] = React.useState({});
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  const handleClosePaymentDialog = () => {
+    setOpenPaymentDialog(false);
+  }
+  // payment variables and handlers
+  const [envPayment, setEnvPayment] = React.useState('sandbox'); // you can set here to 'production' for production
+  const [currencyPayment, setCurrencyPayment] = React.useState('USD'); // or you can set this value from your props or state  
+  const [totalAmountPayment, setTotalAmountPayment] = React.useState(0);  // same as above, this is the total amount (based on currency) to be 
+  const [localePayment, setLocalePayment] = React.useState('en_US');
+  // For Customize Style: https://developer.paypal.com/docs/checkout/how-to/customize-button/
+  const [stylePayment, setStylePayment] = React.useState({
+    'label': 'pay',
+    'tagline': false,
+    'size': 'medium',
+    'shape': 'pill',
+    'color': 'gold'
+  });
+
+  const clientPayment = {
+    sandbox: PAYPAL_CLIENT_ID,
+    production: 'YOUR-PRODUCTION-APP-ID',
+  }
+
+  const [currentState, setCurrentState] = React.useState("nothing");
+
+  const onSuccessPayment = (payment) => {
+    // Congratulation, it came here means everything's fine!
+    setCurrentState("paying");
+    if (payment.paid === true) {
+      setMessageType("success");
+      setMessage("Payment succeed! Start transcribing now!");
+      setOpenMessage(true);
+      setCurrentState("transcribing");
+      transcribeAPI.transcribe(selectedMedia.s3_url, selectedMedia.id, selectedMedia.file_name)
+        .then(
+          response => {
+            if (response.msg === 'Request failed with status code 401') {
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setTimeout(function () { Router.push("/auth/signin"); }, 5000);
+            }
+            if (response.success === 'false') {
+              setMessageType("error")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setOpenPaymentDialog(false)
+            } else if (response.success === 'true') {
+              setMessageType("success")
+              setMessage(response.msg)
+              setOpenMessage(true);
+              setOpenPaymentDialog(false)
+            }
+            getMedias();
+          },
+          error => {
+            setMessageType("error")
+            setMessage(error)
+            setOpenMessage(true);
+          }
+        )
+    } else {
+      setMessageType("error");
+      setMessage("Payment Failed, Try Again!");
+      setOpenMessage(true);
+    }
+  }
+
+  const onCancelPayment = (data) => {
+    // User pressed "cancel" or close Paypal's popup!
+    console.log('The payment was cancelled!', data);
+  }
+
+  const onErrorPayment = (err) => {
+    // The main Paypal's script cannot be loaded or somethings block the loading of that script!
+    console.log("Error!", err);
+  }
+
+  const handleOpenPaymentDialog = (event, row) => {
+    setSelectedMedia(row);
+    setTotalAmountPayment(row.price);
     setOpenFileInformationDialog(false);
-    setMessageType("info")
-    setMessage("Transcribing now!, Please wait some minutes!");
+    setOpenPaymentDialog(true);
+  }
+
+  const handleShowTranscribingMsg = () => {
+    setMessageType("info");
+    setMessage("Transcribe is proceeding now, It takes some minutes, Please wait some minutes!");
     setOpenMessage(true);
-    transcribeAPI.transcribe(row.s3_url, row.id)
-      .then(
-        response => {
-          if (response.msg === 'Request failed with status code 401') {
-            setMessageType("error")
-            setMessage(response.msg)
-            setOpenMessage(true);
-            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
-          }
-          if (response.success === 'false') {
-            setMessageType("error")
-            setMessage(response.msg)
-            setOpenMessage(true);
-          } else if (response.success === 'true') {
-            setMessageType("success")
-            setMessage(response.msg)
-            setOpenMessage(true);
-          }
-          getMedias();
-        },
-        error => {
-          setMessageType("error")
-          setMessage(error)
-          setOpenMessage(true);
-        }
-      )
   }
 
   // sub transcript preview handler
@@ -608,7 +675,7 @@ function Media() {
                                   {
                                     row.transcribe_status === 0 ?
                                       <Tooltip title="Start Transcript" arrow>
-                                        <IconButton variant="contained" color="secondary" onClick={(event) => handleTranscribeStart(event, row)}>
+                                        <IconButton variant="contained" color="secondary" onClick={(event) => handleOpenPaymentDialog(event, row)}>
                                           <RecordVoiceOverIcon />
                                         </IconButton>
                                       </Tooltip>
@@ -769,7 +836,7 @@ function Media() {
                     <Grid container>
                       <Grid item className={`${classes.notTranscribed} ${classes.paddingRight20}`}>Not Transcribed</Grid>
                       <Grid item>
-                        <Button variant="contained" color="secondary" size="small" onClick={(event) => handleTranscribeStart(event, mediaInfo)}>
+                        <Button variant="contained" color="secondary" size="small" onClick={(event) => handleOpenPaymentDialog(event, mediaInfo)}>
                           <RecordVoiceOverIcon />
                           <div className={classes.iconBtnTextPos}>Start Transcript</div>
                         </Button>
@@ -833,6 +900,46 @@ function Media() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseTranscriptPreviewDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* dialog part: payment dialog */}
+      <Dialog
+        open={openPaymentDialog}
+        onClose={handleClosePaymentDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        maxWidth="md"
+        fullWidth={true}
+      >
+        <DialogTitle id="alert-dialog-title">Payment</DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid item>
+              <Box pt={2} >
+                <PaypalBtn
+                  env={envPayment}
+                  client={clientPayment}
+                  currency={currencyPayment}
+                  total={totalAmountPayment}
+                  locale={localePayment}
+                  style={stylePayment}
+                  onError={onErrorPayment}
+                  onSuccess={onSuccessPayment}
+                  onCancel={onCancelPayment}
+                />
+              </Box>
+                {currentState === "transcribing" ?
+                  <div>Transcribing is proceeding now. Please wait some minutes.</div>
+              :
+              ''  
+              }
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleShowTranscribingMsg} color="primary" autoFocus>
             OK
           </Button>
         </DialogActions>

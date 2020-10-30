@@ -253,7 +253,7 @@ function UploadMedia() {
   let envPayment = 'sandbox'; // you can set here to 'production' for production
   let currencyPayment = 'USD'; // or you can set this value from your props or state  
   let totalAmountPayment = 0;  // same as above, this is the total amount (based on currency) to be 
-  for( var i = 0; i< uploadedFiles.length; i++) {
+  for (var i = 0; i < uploadedFiles.length; i++) {
     totalAmountPayment += uploadedFiles[i].price;
   }
   let localePayment = 'en_US';
@@ -265,7 +265,7 @@ function UploadMedia() {
     'shape': 'pill',
     'color': 'gold'
   };
-  
+
   const clientPayment = {
     sandbox: PAYPAL_CLIENT_ID,
     production: 'YOUR-PRODUCTION-APP-ID',
@@ -317,23 +317,26 @@ function UploadMedia() {
     setAllTranscribeState('transcribing');
     setActiveStep(4);
     for (var i = 0; i < uploadedFiles.length; i++) {
-      transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage)
+      transcribeAPI.multitranscribes(uploadedFiles[i].s3_url, uploadedFiles[i].mediaId, i, spokenLanguage, uploadedFiles[i].file_name)
         .then(
           response => {
             if (response.success === 'false') {
               state[response.index] = 'failure'
+              setMessageType("error");
+              setMessage(response.msg);
+              setOpenMessage(true);
             } else if (response.success === 'true') {
               state[response.index] = 'success'
+              let copiedResponse = response;
+              var data = getJSONP(copiedResponse.transcribe_url)
+              copiedResponse.transcript = JSON.parse(data).results.transcripts[0].transcript;
+              setTranscribedFiles(transcribedFiles => [...transcribedFiles, copiedResponse]);
             }
             var tempArray = [];
             state.forEach(element => {
               tempArray.push(element);
             });
             setTranscribeStates(tempArray);
-            let copiedResponse = response;
-            var data = getJSONP(copiedResponse.transcribe_url)
-            copiedResponse.transcript = JSON.parse(data).results.transcripts[0].transcript;
-            setTranscribedFiles(transcribedFiles => [...transcribedFiles, copiedResponse]);
           },
           error => {
             console.log(error)
@@ -354,6 +357,8 @@ function UploadMedia() {
       for (var i = 0; i < transcribeStates.length; i++) {
         if (transcribeStates[i] === 'transcribing') {
           count++;
+        } else if(transcribeStates[i] === 'failure') {
+          setAllTranscribeState('failure');
         }
       }
       if (count === 0) {
@@ -414,6 +419,7 @@ function UploadMedia() {
               <Grid item sm={12} md={12} lg={12} className={classes.padding20}>
                 <Dropzone
                   onDrop={selectedFiles => { addKeyInAcceptedFiles(selectedFiles) }}
+                  accept="audio/mpeg, audio/wav, video/mp4, video/mpeg, video/webm, audio/ogg, video/ogg"
                 >
                   {({ getRootProps, getInputProps }) => (
                     <section>

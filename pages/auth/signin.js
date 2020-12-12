@@ -89,12 +89,13 @@ function Signin() {
   }
 
   const handleInputChange = (event) => {
+    event.persist();
     switch (event.target.id) {
       case "email":
-        authInfo.email = event.target.value
+        setAuthInfo(authInfo => ({ ...authInfo, email: event.target.value }))
         break;
       case "password":
-        authInfo.password = event.target.value
+        setAuthInfo(authInfo => ({ ...authInfo, password: event.target.value }))
         break;
     }
   }

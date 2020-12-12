@@ -6,10 +6,10 @@ const { publicRuntimeConfig } = getConfig();
 const API_URL = publicRuntimeConfig.API_ENDPOINT;
 
 class Transcribe {
-  transcribe (s3_url, mediaId, file_name) {
+  transcribe (s3_url, mediaId, file_name, spokenLanguage) {
     var jsonObj = {s3_url : "", lang: ""}
     jsonObj.s3_url = s3_url;
-    jsonObj.lang = "en-US";
+    jsonObj.lang = spokenLanguage;
     jsonObj.index = 0;
     jsonObj.file_name = file_name;
     return axios

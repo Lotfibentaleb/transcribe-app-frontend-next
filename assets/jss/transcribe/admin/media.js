@@ -78,7 +78,10 @@ const mediaStyles = makeStyles((theme) => ({
   },
   paddingRight20: {
     paddingRight: "20px"
-  }
+  },
+  formControl: {
+    minWidth: "240px"
+  },
 }));
 
 export default mediaStyles;

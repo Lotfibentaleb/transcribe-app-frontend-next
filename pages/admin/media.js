@@ -28,6 +28,12 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+// import IconButton from '@material-ui/core/IconButton';
 // @material-ui/icons
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
@@ -35,6 +41,14 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import MoreIcon from '@material-ui/icons/More';
+import {
+  IconFlagUS,
+  IconFlagUK,
+  IconFlagAU,
+  IconFlagFR,
+  IconFlagDE,
+  IconFlagES
+} from 'material-ui-flags';
 // layout for this page
 import Admin from "layouts/Admin.js";
 // core components
@@ -151,6 +165,11 @@ function Alert(props) {
 }
 
 function Media() {
+  // spoken language select component
+  const [spokenLanguage, setSpokenLanguage] = React.useState("");
+  const handleChangeLanguage = (event) => {
+    setSpokenLanguage(event.target.value);
+  };
   // styles
   const classes = useStyles();
   // snackbar variables and handle events
@@ -390,7 +409,7 @@ function Media() {
       setMessage("Payment succeed! Start transcribing now!");
       setOpenMessage(true);
       setCurrentState("transcribing");
-      transcribeAPI.transcribe(selectedMedia.s3_url, selectedMedia.id, selectedMedia.file_name)
+      transcribeAPI.transcribe(selectedMedia.s3_url, selectedMedia.id, selectedMedia.file_name, spokenLanguage)
         .then(
           response => {
             if (response.msg === 'Request failed with status code 401') {
@@ -918,6 +937,37 @@ function Media() {
           <Grid container>
             <Grid item>
               <Box pt={2} >
+                <FormControl className={classes.formControl}>
+                  <InputLabel id="demo-customized-select-label">What language was spoken?</InputLabel>
+                  <Select
+                    labelId="demo-customized-select-label"
+                    id="demo-customized-select"
+                    value={spokenLanguage}
+                    onChange={handleChangeLanguage}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    <MenuItem value="en-US">
+                      English
+                              <IconButton><IconFlagUS /></IconButton>
+                      <IconButton><IconFlagUK /></IconButton>
+                      <IconButton><IconFlagAU /></IconButton>
+                    </MenuItem>
+                    <MenuItem value="fr">
+                      French
+                              <IconButton><IconFlagFR /></IconButton>
+                    </MenuItem>
+                    <MenuItem value="de">
+                      German
+                              <IconButton><IconFlagDE /></IconButton>
+                    </MenuItem>
+                    <MenuItem value="es">
+                      Spanish
+                              <IconButton><IconFlagES /></IconButton>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box pt={2} >
                 <PaypalBtn
                   env={envPayment}
                   client={clientPayment}
@@ -930,10 +980,10 @@ function Media() {
                   onCancel={onCancelPayment}
                 />
               </Box>
-                {currentState === "transcribing" ?
-                  <div>Transcribing is proceeding now. Please wait some minutes.</div>
-              :
-              ''  
+              {currentState === "transcribing" ?
+                <div>Transcribing is proceeding now. Please wait some minutes.</div>
+                :
+                ''
               }
             </Grid>
           </Grid>

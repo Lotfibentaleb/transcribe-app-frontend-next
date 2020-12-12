@@ -38,7 +38,7 @@ import CardBody from "components/Card/CardBody.js";
 import userAPI from "apis/user";
 
 // style
-import useStyles from "assets/jss/transcribe/admin/user.js";
+import useStyles from "assets/jss/accuscript/admin/user.js";
 
 // table variables
 const headCells = [

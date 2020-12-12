@@ -22,7 +22,7 @@ import PricingSection from "./Sections/pricing_section.js";
 import AboutusSection from "./Sections/aboutus_section.js";
 import ContactusSection from "./Sections/contactus_section.js";
 
-import styles from "assets/jss/transcribe/landing.js";
+import styles from "assets/jss/accuscript/landing.js";
 
 const dashboardRoutes = [];
 
@@ -36,7 +36,7 @@ export default function LandingPage(props) {
       <Header
         color="transparent"
         routes={dashboardRoutes}
-        brand="Transcribe"
+        brand="Accuscript"
         rightLinks={<HeaderLinks />}
         fixed
         changeColorOnScroll={{
@@ -49,7 +49,7 @@ export default function LandingPage(props) {
         <div className={classes.container}>
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
-              <h1 className={classes.title}>Transcribe</h1>
+              <h1 className={classes.title}>Accuscript</h1>
               <h4>
                 Transcribing and editing speeches is painful.
                 We make it fast, simple, and affordable.

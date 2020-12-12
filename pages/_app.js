@@ -84,7 +84,7 @@ export default class MyApp extends App {
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
           />
-          <title>Transcribe</title>
+          <title>Accuscript</title>
         </Head>
         <Layout>
           <Component {...pageProps} />

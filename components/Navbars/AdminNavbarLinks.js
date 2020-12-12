@@ -54,11 +54,14 @@ export default function AdminNavbarLinks() {
     setOpenProfile(null);
   };
   const handleSignout = () => {
-    if(authAPI.signout() === true) {
-      Router.push("/landing");
+    if (authAPI.signout() === true) {
+      Router.push("/");
     } else {
       console.log("Unkown Error")
     }
+  }
+  const handleOpenProfile = () => {
+    Router.push('profile');
   }
   return (
     <div>
@@ -207,7 +210,7 @@ export default function AdminNavbarLinks() {
                 <ClickAwayListener onClickAway={handleCloseProfile}>
                   <MenuList role="menu">
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleOpenProfile}
                       className={classes.dropdownItem}
                     >
                       Profile

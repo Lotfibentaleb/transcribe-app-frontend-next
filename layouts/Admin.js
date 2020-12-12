@@ -65,7 +65,7 @@ export default function Admin({ children, ...rest }) {
         suppressScrollX: true,
         suppressScrollY: false,
       });
-      document.body.style.overflow = "hidden";
+      // document.body.style.overflow = "hidden";
     }
     window.addEventListener("resize", resizeFunction);
     // Specify how to clean up after this effect:
@@ -80,7 +80,7 @@ export default function Admin({ children, ...rest }) {
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"Transcribe"}
+        logoText={"Accuscript"}
         logo={logo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}

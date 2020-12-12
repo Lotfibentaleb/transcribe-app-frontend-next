@@ -16,7 +16,7 @@ import Email from "@material-ui/icons/Email";
 import Business from "@material-ui/icons/Business";
 import LocationCity from "@material-ui/icons/LocationCity";
 
-import styles from "assets/jss/transcribe/sections/pricing_section_style.js";
+import styles from "assets/jss/accuscript/sections/pricing_section_style.js";
 
 const useStyles = makeStyles(styles);
 

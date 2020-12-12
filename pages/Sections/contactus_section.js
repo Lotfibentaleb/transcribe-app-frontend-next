@@ -10,7 +10,7 @@ import GridItem from "components/Grid/GridItem.js";
 // @material-ui/icons
 import EmailIcon from "@material-ui/icons/Email";
 
-import styles from "assets/jss/transcribe/sections/contactus_section_style.js";
+import styles from "assets/jss/accuscript/sections/contactus_section_style.js";
 
 const useStyles = makeStyles(styles);
 

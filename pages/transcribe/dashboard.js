@@ -93,7 +93,7 @@ function Dashboard() {
         totalCount = totalCount + countval;
         $this.text(totalCount.toFixed(2) + "$");
         if (totalCount >= val) {
-          $this.text(val + "$");
+          $this.text(parseFloat(val).toFixed(2) + "$");
           clearInterval(x);
         }
       }, 150);

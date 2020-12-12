@@ -22,7 +22,7 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import authAPI from "apis/auth";
 
 // style
-import styles from "assets/jss/transcribe/auth/signin.js";
+import styles from "assets/jss/accuscript/auth/signin.js";
 
 const useStyles = makeStyles(styles);
 
@@ -74,7 +74,7 @@ function Signin() {
               setMessage(response.msg)
               setOpenMessage(true);
             } else if (response.success === "true" && response.jwt_token !== undefined) {
-              Router.push("/admin/dashboard");
+              Router.push("/transcribe/dashboard");
             } else {
               setMessageType("error")
               setMessage(response.msg)
@@ -89,12 +89,13 @@ function Signin() {
   }
 
   const handleInputChange = (event) => {
+    event.persist();
     switch (event.target.id) {
       case "email":
-        authInfo.email = event.target.value
+        setAuthInfo(authInfo => ({ ...authInfo, email: event.target.value }))
         break;
       case "password":
-        authInfo.password = event.target.value
+        setAuthInfo(authInfo => ({ ...authInfo, password: event.target.value }))
         break;
     }
   }

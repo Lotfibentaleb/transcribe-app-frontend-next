@@ -23,7 +23,7 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import authAPI from "apis/auth";
 
 // style
-import styles from "assets/jss/transcribe/auth/signup.js";
+import styles from "assets/jss/accuscript/auth/signup.js";
 
 const useStyles = makeStyles(styles);
 

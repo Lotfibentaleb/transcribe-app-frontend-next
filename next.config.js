@@ -14,4 +14,7 @@ module.exports = withPlugins([[withSass], [withImages], [withCSS]], {
     API_ENDPOINT: process.env.API_ENDPOINT,
     PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
   },
+  plugins: [
+    { src: '~/plugins/owl.carousel.js' }
+  ],
 });

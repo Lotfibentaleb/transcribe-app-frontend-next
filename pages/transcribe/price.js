@@ -22,7 +22,7 @@ import CardBody from "components/Card/CardBody.js";
 import priceAPI from "apis/price";
 
 // style
-import useStyles from "assets/jss/transcribe/admin/price.js";
+import useStyles from "assets/jss/accuscript/admin/price.js";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;

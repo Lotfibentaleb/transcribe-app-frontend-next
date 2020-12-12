@@ -27,28 +27,28 @@ const dashboardRoutes = [
     name: "Dashboard",
     icon: Dashboard,
 
-    layout: "/admin",
+    layout: "/transcribe",
   },
   {
     path: "/media",
     name: "Media",
     icon: Movie,
 
-    layout: "/admin",
+    layout: "/transcribe",
   },
   {
     path: "/user",
     name: "User",
     icon: People,
 
-    layout: "/admin",
+    layout: "/transcribe",
   },
   {
     path: "/price",
     name: "Price",
     icon: AttachMoney,
 
-    layout: "/admin",
+    layout: "/transcribe",
   },
 ];
 

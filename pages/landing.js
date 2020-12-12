@@ -22,7 +22,7 @@ import PricingSection from "./Sections/pricing_section.js";
 import AboutusSection from "./Sections/aboutus_section.js";
 import ContactusSection from "./Sections/contactus_section.js";
 
-import styles from "assets/jss/transcribe/landing.js";
+import styles from "assets/jss/accuscript/landing.js";
 
 const dashboardRoutes = [];
 

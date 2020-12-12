@@ -32,6 +32,19 @@ class Price {
         }
       )
   }
+  
+  dashboard() {
+    return axios
+      .get(API_URL + "price/dashboard", { headers: authHeader() })
+      .then(response => {
+        localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        return response.data;
+      },
+        error => {
+          return error;
+        }
+      );
+  }
 }
 
 export default new Price();

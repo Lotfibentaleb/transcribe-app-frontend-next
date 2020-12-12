@@ -43,7 +43,7 @@ import transcribeAPI from "apis/transcribe";
 import PaypalBtn from 'react-paypal-checkout';
 
 // style
-import useStyles from "assets/jss/transcribe/admin/upload_media.js";
+import useStyles from "assets/jss/accuscript/admin/upload_media.js";
 
 // get paypal client id from .env file
 import getConfig from "next/config";

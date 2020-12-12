@@ -6,7 +6,7 @@ import Box from "@material-ui/core/Box";
 import GridContainer from "components/Grid/GridContainer.js";
 import GridItem from "components/Grid/GridItem.js";
 
-import styles from "assets/jss/transcribe/sections/aboutus_section_style.js";
+import styles from "assets/jss/accuscript/sections/aboutus_section_style.js";
 
 const useStyles = makeStyles(styles);
 

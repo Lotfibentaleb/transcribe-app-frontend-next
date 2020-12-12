@@ -72,7 +72,7 @@ const { publicRuntimeConfig } = getConfig();
 const PAYPAL_CLIENT_ID = publicRuntimeConfig.PAYPAL_CLIENT_ID;
 
 // style
-import useStyles from "assets/jss/transcribe/admin/media.js";
+import useStyles from "assets/jss/accuscript/admin/media.js";
 
 // table variables
 const headCells = [

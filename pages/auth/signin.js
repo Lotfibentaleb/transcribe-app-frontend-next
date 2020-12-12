@@ -74,7 +74,7 @@ function Signin() {
               setMessage(response.msg)
               setOpenMessage(true);
             } else if (response.success === "true" && response.jwt_token !== undefined) {
-              Router.push("/admin/dashboard");
+              Router.push("/transcribe/dashboard");
             } else {
               setMessageType("error")
               setMessage(response.msg)

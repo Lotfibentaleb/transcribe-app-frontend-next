@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Dropzone from 'react-dropzone';
+import TCO from '2co-react';
 // @material-ui/core components
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
@@ -72,7 +73,8 @@ function UploadMedia() {
 
   // stepper variables and handlers
   const [activeStep, setActiveStep] = React.useState(0);
-
+  const [showTcoModal, setShowTcoModal] = React.useState(0);
+  
   const getSteps = () => {
     return ['Upload File', 'Add Details', 'Payment', 'Start Transcribe', 'Transcribing'];
   }
@@ -298,6 +300,10 @@ function UploadMedia() {
     console.log("Error!", err);
   }
 
+  const handle2Checkout = () => {
+    console.log('1111111111111111');
+    setShowTcoModal(1);
+  }
 
   ///////////////////////////////////////////////////////////////////
   ////////////////// step 4 start transcribe part ///////////////////
@@ -576,6 +582,30 @@ function UploadMedia() {
                           />
                         </Box>
                       </Grid>
+                      <Grid item>
+                        <Box pt={2} >
+                          <Button variant="contained" className={classes.checkoutBtn} size="large" onClick={(event) => handle2Checkout()}>
+                          <Typography className={classes.iconBtnTextPos}>Pay with </Typography>
+                          <img className={classes.checkoutIcon} src={'https://cdn.icon-icons.com/icons2/1455/PNG/128/2checkout_99452.png'}/>
+                          </Button>
+                        </Box>
+                        {
+                        showTcoModal == 1?
+                        <Box pt={2} >
+                          <TCO
+                          sellerId="250541720353"
+                          publishableKey="50250A84-8914-48FB-98B6-7EEECDCA4508"
+                          sandbox
+                          showForm
+                          showModal
+                          showLoading
+                          returnToken={returnToken}
+                          />
+                        </Box>
+                        :
+                        ''
+                        }
+                    </Grid>
                     </Grid>
                   </Grid>
                   :

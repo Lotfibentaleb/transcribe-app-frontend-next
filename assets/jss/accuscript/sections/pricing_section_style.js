@@ -83,6 +83,28 @@ const pricingCardStyle = {
       backgroundColor: "#3f51b5",
     }
   },
+  priceFont: {
+    fontSize: '20px',
+  },
+  checkImgSize: {
+    width: '20px',
+    height: '20px',
+  },
+  liTextMargin: {
+    marginTop: '15px !important'
+  },
+  backgroundImg: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  paypalImg: {
+    width: '400px',
+    height: 'auto',
+    paddingLeft: '30px',
+  },
 };
 
 export default pricingCardStyle;

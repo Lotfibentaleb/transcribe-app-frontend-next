@@ -45,34 +45,17 @@ export default function LandingPage(props) {
         }}
         {...rest}
       />
-      <Parallax filter responsive image={require("assets/img/landing-bg.jpg")}>
+      <Parallax responsive image={require("assets/img/bg-landing.svg")}>
         <div className={classes.container}>
           <GridContainer>
             <GridItem xs={12} sm={12} md={6}>
-              <h1 className={classes.title}>Accuscript</h1>
+              {/* <h1 className={classes.title}>Accuscript</h1> */} 
+              <br /><br />
               <h4>
                 Transcribing and editing speech is time consuming.
-                 We make it fast, simple, and affordable.
+                We make it fast, simple, and affordable.
               </h4>
               <br />
-              {/* <Button
-                color="success"
-                size="lg"
-                href="#"
-                rel="noopener noreferrer"
-              >
-                <TelegramIcon />
-                Try transcribe for free
-              </Button>
-              <Button
-                color="danger"
-                size="lg"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <PlayArrowIcon />
-                Watch video
-              </Button> */}
             </GridItem>
           </GridContainer>
         </div>

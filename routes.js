@@ -26,6 +26,7 @@ const dashboardRoutes = [
     path: "/dashboard",
     name: "Dashboard",
     icon: Dashboard,
+    permission: "admin",
 
     layout: "/transcribe",
   },
@@ -33,6 +34,7 @@ const dashboardRoutes = [
     path: "/media",
     name: "Media",
     icon: Movie,
+    permission: "user",
 
     layout: "/transcribe",
   },
@@ -40,6 +42,7 @@ const dashboardRoutes = [
     path: "/user",
     name: "User",
     icon: People,
+    permission: "user",
 
     layout: "/transcribe",
   },
@@ -47,6 +50,7 @@ const dashboardRoutes = [
     path: "/price",
     name: "Price",
     icon: AttachMoney,
+    permission: "admin",
 
     layout: "/transcribe",
   },

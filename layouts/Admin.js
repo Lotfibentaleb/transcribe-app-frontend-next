@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
@@ -30,10 +30,11 @@ export default function Admin({ children, ...rest }) {
   // ref to help us initialize PerfectScrollbar on windows devices
   const mainPanel = React.createRef();
   // states and functions
-  const [image, setImage] = React.useState(bgImage);
-  const [color, setColor] = React.useState("purple");
-  const [fixedClasses, setFixedClasses] = React.useState("dropdown");
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [image, setImage] = useState(bgImage);
+  const [color, setColor] = useState("purple");
+  const [fixedClasses, setFixedClasses] = useState("dropdown");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [filterRouter, setFilterRouter] = useState([]);
   const handleImageClick = (image) => {
     setImage(image);
   };
@@ -58,8 +59,9 @@ export default function Admin({ children, ...rest }) {
       setMobileOpen(false);
     }
   };
+
   // initialize and destroy the PerfectScrollbar plugin
-  React.useEffect(() => {
+  useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       ps = new PerfectScrollbar(mainPanel.current, {
         suppressScrollX: true,
@@ -76,10 +78,22 @@ export default function Admin({ children, ...rest }) {
       window.removeEventListener("resize", resizeFunction);
     };
   }, [mainPanel]);
+
+  useEffect(() => {
+    const perm = JSON.parse(localStorage.getItem('permission'));
+
+    if(perm === "user") {
+      const tempFilterRouter = routes.filter((route) => route.permission === "user");
+      setFilterRouter(tempFilterRouter)
+    } else {
+      setFilterRouter(routes)
+    }
+  }, [routes])
+
   return (
     <div className={classes.wrapper}>
       <Sidebar
-        routes={routes}
+        routes={filterRouter}
         logoText={"Accuscript"}
         logo={logo}
         image={image}

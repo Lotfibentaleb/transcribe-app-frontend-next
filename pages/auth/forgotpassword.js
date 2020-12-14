@@ -45,8 +45,8 @@ function Signin() {
   const [messageType, setMessageType] = useState('success');
   const [openMessage, setOpenMessage] = React.useState(false);
   // functions
-  const handleGotoSignup = () => {
-    Router.push("/auth/signup");
+  const handleGotoSignin = () => {
+    Router.push("/auth/signin");
   }
   const handleMessageClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -55,7 +55,7 @@ function Signin() {
     setOpenMessage(false);
   };
 
-  const handleSignin = () => {
+  const handleSubmit = () => {
     if (authInfo.email === "" || authInfo.password === "") {
       setMessageType("warning")
       setMessage("Please insert all information.")
@@ -101,10 +101,6 @@ function Signin() {
     }
   }
 
-  const handleForgotPassword = () => {
-      Router.push("/auth/signup");
-    }
-
   const validateEmail = (email) => {
     const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     if (email.match(mailformat)) {
@@ -135,7 +131,7 @@ function Signin() {
           <GridItem xs={12} sm={6} md={4}>
             <Card>
               <CardHeader color="success">
-                <h4 className={`${classes.displayFlex} ${classes.justifyCenter} ${classes.cardTitleWhite}`}>Sign In</h4>
+                <h4 className={`${classes.displayFlex} ${classes.justifyCenter} ${classes.cardTitleWhite}`}>Forgot Password</h4>
               </CardHeader>
               <CardBody>
                 <GridContainer>
@@ -157,44 +153,17 @@ function Signin() {
                       onChange={handleInputChange}
                     />
                   </GridItem>
-                  <GridItem xs={12} sm={12} md={12}>
-                    <CustomInput
-                      labelText="Password"
-                      id="password"
-                      formControlProps={{
-                        fullWidth: true,
-                      }}
-                      inputProps={{
-                        type: "password",
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <Lock className={classes.inputIconsColor} />
-                          </InputAdornment>
-                        )
-                      }}
-                      onChange={handleInputChange}
-                    />
-                  </GridItem>
                 </GridContainer>
               </CardBody>
               <CardFooter>
                 <Grid container direction="row" spacing={1}>
                   <Grid container justify="center"  item xs={12}>
-                    <Link href="/auth/forgotpassword" className={classes.forgotPasswordTextDecoration}>Forgot Password?</Link>
-                  </Grid>
-                  <Grid container justify="center"  item xs={12}>
-                    <Button variant="contained" color="primary" onClick={handleGotoSignup}>
-                      Sign Up
+                    <Button variant="contained" color="primary" onClick={handleGotoSignin}>
+                      Go to Sign In
                     </Button>
-                    {
-                      isLoading ?
-                        <Button variant="contained" disabled color="success" className={classes.signinButtonMarginLeft} onClick={handleSignin}>
-                          Sign In
-                        </Button> :
-                        <Button variant="contained" color="success" className={classes.signinButtonMarginLeft} onClick={handleSignin}>
-                          Sign In
-                        </Button>
-                    }
+                    <Button variant="contained" color="success" onClick={handleSubmit}>
+                        Submit    
+                    </Button>
                   </Grid>
                 </Grid>
               </CardFooter>

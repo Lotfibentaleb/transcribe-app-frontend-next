@@ -31,29 +31,29 @@ export default function PricingSection() {
       <GridItem xs={12} sm={6} md={4} className={classes.marginAuto}>
         <Card plain className={classes.pricingCard}>
           <div className={classes.cartTitleSection}>
-            <BusinessCenter className={classes.icons, classes.cardTitleIcon} />
+            {/* <BusinessCenter className={classes.icons, classes.cardTitleIcon} /> */}
             <div>
               <div className={classes.cardTitle}>Standard</div>
               <small className={classes.smallTitle}>PAY-AS-YOU-GO</small>
             </div>
           </div>
           <CardBody className={classes.cardBody}>
-            <p className={classes.description}>
+            {/* <p className={classes.description}>
               Pay-as-you-go transcription. Perfect for project-based work.
                 <br />
               <br />
                 $10 / HOUR
-              </p>
+              </p> */}
           </CardBody>
           <CardFooter className={classes.justifyCenter}>
             <Button className={classes.button}>
-              <ShoppingCart className={classes.icons} /> Buy Standard
+              <ShoppingCart className={classes.icons} /> Get Started
               </Button>
           </CardFooter>
         </Card>
       </GridItem>
       {/* premium pricing card */}
-      <GridItem xs={12} sm={6} md={4} className={classes.marginAuto}>
+      {/* <GridItem xs={12} sm={6} md={4} className={classes.marginAuto}>
         <Card plain className={classes.pricingCard}>
           <div className={classes.cartTitleSection}>
             <Business className={classes.icons, classes.cardTitleIcon} />
@@ -80,9 +80,9 @@ export default function PricingSection() {
               </Button>
           </CardFooter>
         </Card>
-      </GridItem>
+      </GridItem> */}
       {/* enterprise pricing card */}
-      <GridItem xs={12} sm={6} md={4} className={classes.marginAuto}>
+      {/* <GridItem xs={12} sm={6} md={4} className={classes.marginAuto}>
         <Card plain className={classes.pricingCard}>
           <div className={classes.cartTitleSection}>
             <LocationCity className={classes.icons, classes.cardTitleIcon} />
@@ -104,7 +104,7 @@ export default function PricingSection() {
               </Button>
           </CardFooter>
         </Card>
-      </GridItem>
+      </GridItem> */}
     </GridContainer>
   );
 }

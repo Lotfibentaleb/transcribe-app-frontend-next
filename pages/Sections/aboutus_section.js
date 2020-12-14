@@ -30,9 +30,9 @@ export default function AboutusSection() {
           <div className={classes.title}>
             Hermione Spencer
             </div>
-          <div className={classes.text}>
+          {/* <div className={classes.text}>
             Jamie is a seasoned software executive and company builder. He led the US expansion for Xero helping the company raise over $250M in capital, reach 700,000 customers, and a $2.5 Billion market cap. Before joining Xero, Jamie was the youngest executive at Sage running its small business unit which became the fastest growing business in North America. He also co-founded a taxi-hailing app called TaxiNow that was subsequently acquired. In his spare time, Jamie can be found surfing, golfing, or picking up toys.
-            </div>
+            </div> */}
         </Box>
       </GridItem>
     </GridContainer>

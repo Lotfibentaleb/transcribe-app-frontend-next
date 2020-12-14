@@ -51,11 +51,11 @@ export default function LandingPage(props) {
             <GridItem xs={12} sm={12} md={6}>
               <h1 className={classes.title}>Accuscript</h1>
               <h4>
-                Transcribing and editing speeches is painful.
-                We make it fast, simple, and affordable.
+                Transcribing and editing speech is time consuming.
+                 We make it fast, simple, and affordable.
               </h4>
               <br />
-              <Button
+              {/* <Button
                 color="success"
                 size="lg"
                 href="#"
@@ -72,7 +72,7 @@ export default function LandingPage(props) {
               >
                 <PlayArrowIcon />
                 Watch video
-              </Button>
+              </Button> */}
             </GridItem>
           </GridContainer>
         </div>

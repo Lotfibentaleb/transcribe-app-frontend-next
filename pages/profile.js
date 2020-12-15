@@ -56,13 +56,49 @@ function Profile(props) {
     last_name: '',
   });
 
+  const [passwordInfo, setPasswordInfo] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
+  });
+
   const handleChange = (prop) => (event) => {
     setProfileInfo({ ...profileInfo, [prop]: event.target.value });
   };
 
+  const handlePasswordChange = (prop) => (event) => {
+    setPasswordInfo({ ...passwordInfo, [prop]: event.target.value });
+  };
+
+  const handlePasswordReset = () => {
+    setPasswordInfo({
+      ...passwordInfo,
+      current_password: '',
+      new_password: '',
+      confirm_password: '', 
+    });
+  }
+
+  const validateEmail = (email) => {
+    const mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (email.match(mailformat)) {
+      return true;
+    }
+    return false;
+  }
+
   // handle edit price
   const handleUpdateProfile = () => {
-    userAPI.updateProfile(profileInfo)
+    if (validateEmail(profileInfo.email) !== true) {
+      setMessageType("warning")
+      setMessage("Email is not validate. Please insert correct Email.")
+      setOpenMessage(true);
+    } else if (profileInfo.first_name === "" || profileInfo.last_name === "" || profileInfo.email === "") {
+      setMessageType("warning")
+      setMessage("Please insert all information.")
+      setOpenMessage(true);
+    } else {
+      userAPI.updateProfile(profileInfo)
       .then(
         response => {
           if (response.msg === 'Request failed with status code 401') {
@@ -73,7 +109,7 @@ function Profile(props) {
           }
           if (response.msg === 'success') {
             setMessageType("success")
-            setMessage("Editing User success!")
+            setMessage("Updating Profile success!")
             setOpenMessage(true);
           } else {
             setMessageType("error")
@@ -87,7 +123,7 @@ function Profile(props) {
           setOpenMessage(true);
         }
       )
-
+    }
   }
 
   // initial method
@@ -105,12 +141,15 @@ function Profile(props) {
             setOpenMessage(true);
             setTimeout(function () { Router.push("/auth/signin"); }, 5000);
           } else {
-            // setPriceValue(priceValue => ({
-            //   ...priceValue,
-            //   price_per_half_minute: response.price.price_per_half_minute,
-            //   price_per_minute: response.price.price_per_minute,
-            //   minimum_price: response.price.minimum_price,
-            // }));
+            setProfileInfo(profileInfo => ({
+              ...profileInfo,
+              email: response.profile[0].email,
+              first_name: response.profile[0].first_name,
+              last_name: response.profile[0].last_name,
+            }));
+            console.log(profileInfo.first_name)
+            console.log(profileInfo.last_name)
+            console.log(profileInfo.email)
           }
         },
         error => {
@@ -119,6 +158,54 @@ function Profile(props) {
           setOpenMessage(true);
         }
       )
+  }
+
+  //reset password
+  const handleResetPassword = () => {
+    if (passwordInfo.current_password === "") {
+      setMessageType("warning")
+      setMessage("Please insert current password.")
+      setOpenMessage(true);
+    } else if (passwordInfo.new_password !== passwordInfo.confirm_password) {
+      setMessageType("warning")
+      setMessage("Incorrect password and confirm password. Please insert corract password and confirm password.")
+      setOpenMessage(true);
+    } else if (passwordInfo.new_password === "") {
+      setMessageType("warning")
+      setMessage("Please insert new password.")
+      setOpenMessage(true);
+    } else if (passwordInfo.confirm_password === "") {
+      setMessageType("warning")
+      setMessage("Please insert confirm password.")
+      setOpenMessage(true);
+    } else {
+      userAPI.resetPassword(passwordInfo)
+      .then(
+        response => {
+          if (response.msg === 'Request failed with status code 401') {
+            setMessageType("error")
+            setMessage(response.msg)
+            setOpenMessage(true);
+            setTimeout(function () { Router.push("/auth/signin"); }, 5000);
+          }
+          if (response.msg === 'success') {
+            setMessageType("success")
+            setMessage("Resetting Password success!")
+            setOpenMessage(true);
+            handlePasswordReset();
+          } else {
+            setMessageType("error")
+            setMessage(response.msg)
+            setOpenMessage(true);
+          }
+        },
+        error => {
+          setMessageType("error")
+          setMessage(error)
+          setOpenMessage(true);
+        }
+      )
+    }
   }
 
   return (
@@ -158,6 +245,7 @@ function Profile(props) {
                         }}
                         inputProps={{
                           type: "text",
+                          value: profileInfo.email,
                           endAdornment: (
                             <InputAdornment position="end">
                               <Email className={classes.inputIconsColor} />
@@ -167,20 +255,16 @@ function Profile(props) {
                         onChange={handleChange('email')}
                   />
                 </GridItem>
-                {/* <GridItem xs={12} sm={6} md={4} lg={4}>
-                  <Box display="flex" justifyContent="flex-end" alignItems="center" p={1}>
-                    <strong>First Name: </strong>
-                  </Box>
-                </GridItem> */}
                 <GridItem xs={12} sm={6} md={12} lg={12} >
-                <CustomInput
+                  <CustomInput
                       labelText="First Name"
-                      id="firstName"
+                      id="first_name"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         type: "text",
+                        value: profileInfo.first_name,
                         endAdornment: (
                           <InputAdornment position="end">
                             <Person className={classes.inputIconsColor} />
@@ -191,14 +275,15 @@ function Profile(props) {
                     />
                 </GridItem>
                 <GridItem xs={12} sm={6} md={12} lg={12} >
-                <CustomInput
+                  <CustomInput
                       labelText="Last Name"
-                      id="lastName"
+                      id="last_name"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         type: "text",
+                        value: profileInfo.last_name,
                         endAdornment: (
                           <InputAdornment position="end">
                             <Person className={classes.inputIconsColor} />
@@ -256,19 +341,20 @@ function Profile(props) {
                 <GridItem xs={12} sm={6} md={8} lg={8} >
                 <CustomInput
                       labelText="Password"
-                      id="password"
+                      id="current_password"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         type: "password",
+                        value: passwordInfo.current_password,
                         endAdornment: (
                           <InputAdornment position="end">
                             <Lock className={classes.inputIconsColor} />
                           </InputAdornment>
                         )
                       }}
-                      onChange={handleChange('email')}
+                      onChange={handlePasswordChange('current_password')}
                     />
                 </GridItem>
                 <GridItem xs={12} sm={6} md={4} lg={4}>
@@ -279,19 +365,20 @@ function Profile(props) {
                 <GridItem xs={12} sm={6} md={8} lg={8} >
                 <CustomInput
                       labelText="New Password"
-                      id="password"
+                      id="new_password"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         type: "password",
+                        value: passwordInfo.new_password,
                         endAdornment: (
                           <InputAdornment position="end">
                             <Lock className={classes.inputIconsColor} />
                           </InputAdornment>
                         )
                       }}
-                      onChange={handleChange('email')}
+                      onChange={handlePasswordChange('new_password')}
                     />
                 </GridItem>
                 <GridItem xs={12} sm={6} md={4} lg={4}>
@@ -302,19 +389,20 @@ function Profile(props) {
                 <GridItem xs={12} sm={6} md={8} lg={8} >
                   <CustomInput
                       labelText="Confirm Password"
-                      id="password"
+                      id="confirm_password"
                       formControlProps={{
                         fullWidth: true,
                       }}
                       inputProps={{
                         type: "password",
+                        value: passwordInfo.confirm_password,
                         endAdornment: (
                           <InputAdornment position="end">
                             <Lock className={classes.inputIconsColor} />
                           </InputAdornment>
                         )
                       }}
-                      onChange={handleChange}
+                      onChange={handlePasswordChange('confirm_password')}
                     />
                 </GridItem>
                 <GridItem xs={12} sm={6} md={4} lg={4}>
@@ -322,7 +410,7 @@ function Profile(props) {
                 {
                   <GridItem xs={12} sm={6} md={8} lg={8} >
                     <Box display="flex" justifyContent="flex-start" alignItems="center" p={1}>
-                      <Button variant="contained" color="primary" size="large" onClick={handleUpdateProfile}>
+                      <Button variant="contained" color="primary" size="large" onClick={handleResetPassword}>
                         Reset Password
                       </Button>
                     </Box>

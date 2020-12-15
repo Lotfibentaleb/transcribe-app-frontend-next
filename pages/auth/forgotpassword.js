@@ -37,8 +37,7 @@ function Signin() {
   // variables
   const [isLoading, setIsLoading] = useState(false);
   const [authInfo, setAuthInfo] = useState({
-    email: "",
-    password: ""
+    email: ""
   })
   // snackbar part
   const [message, setMessage] = useState('');
@@ -56,9 +55,9 @@ function Signin() {
   };
 
   const handleSubmit = () => {
-    if (authInfo.email === "" || authInfo.password === "") {
+    if (authInfo.email === "") {
       setMessageType("warning")
-      setMessage("Please insert all information.")
+      setMessage("Please insert email.")
       setOpenMessage(true);
     } else if (validateEmail(authInfo.email) !== true) {
       setMessageType("info")
@@ -66,7 +65,7 @@ function Signin() {
       setOpenMessage(true);
     } else {
       setIsLoading(true)
-      authAPI.signin(authInfo)
+      authAPI.forgotpassword(authInfo)
         .then(
           response => {
             setIsLoading(false)
@@ -74,8 +73,10 @@ function Signin() {
               setMessageType("warning")
               setMessage(response.msg)
               setOpenMessage(true);
-            } else if (response.success === "true" && response.jwt_token !== undefined) {
-              Router.push("/transcribe/dashboard");
+            } else if (response.success === "true") {
+                setMessageType("success")
+                setMessage(response.msg)
+                setOpenMessage(true);
             } else {
               setMessageType("error")
               setMessage(response.msg)

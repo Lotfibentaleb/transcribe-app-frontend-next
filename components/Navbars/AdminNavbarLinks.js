@@ -61,7 +61,7 @@ export default function AdminNavbarLinks() {
     }
   }
   const handleOpenProfile = () => {
-    Router.push('profile');
+    Router.push('/profile');
   }
   return (
     <div>
@@ -104,7 +104,7 @@ export default function AdminNavbarLinks() {
           className={classes.buttonLink}
         >
           <Notifications className={classes.icons} />
-          <span className={classes.notifications}>5</span>
+          {/* <span className={classes.notifications}>5</span> */}
           <Hidden mdUp implementation="css">
             <p onClick={handleCloseNotification} className={classes.linkText}>
               Notification
@@ -134,7 +134,7 @@ export default function AdminNavbarLinks() {
               <Paper>
                 <ClickAwayListener onClickAway={handleCloseNotification}>
                   <MenuList role="menu">
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={handleCloseNotification}
                       className={classes.dropdownItem}
                     >
@@ -163,7 +163,7 @@ export default function AdminNavbarLinks() {
                       className={classes.dropdownItem}
                     >
                       Another One
-                    </MenuItem>
+                    </MenuItem> */}
                   </MenuList>
                 </ClickAwayListener>
               </Paper>

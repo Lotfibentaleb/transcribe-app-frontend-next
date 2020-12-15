@@ -60,6 +60,35 @@ class User {
         }
       )
   }
+
+  updateProfile(userInfo, id) {
+    return axios
+      .post(API_URL + "users/edit/" + id, userInfo, { headers: authHeader() })
+      .then(
+        response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+          return response.data;
+        },
+        error => {
+          return error;
+        }
+      )
+  }
+
+  profile() {
+    return axios
+      .get(API_URL + "users/profile", { headers: authHeader() })
+      .then(response => {
+        localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        return response.data;
+      },
+      error => {
+        return error;
+      }
+    );
+  }
+
+
 }
 
 export default new User();

@@ -232,7 +232,7 @@ function Media() {
   }
   // functions
   const handleGotoUploadMedia = () => {
-    Router.push("/admin/upload_media");
+    Router.push("/transcribe/upload_media");
   }
   // table variables
   const [order, setOrder] = React.useState("asc");

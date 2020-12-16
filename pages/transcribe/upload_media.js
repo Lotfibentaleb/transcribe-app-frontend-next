@@ -400,7 +400,7 @@ function UploadMedia() {
           </Snackbar>
           {/* page content */}
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Upload Audio/Video Files</h4>
               <p className={classes.cardCategoryWhite}>
                 This is a subscription page.
@@ -450,7 +450,10 @@ function UploadMedia() {
               </Grid>
               {/* step 1 part file upload */}
               <Grid item className={classes.padding20}>
-                <div className={classes.stepTitle}>Step 1: Upload File</div>
+                <Grid container justify="space-between">
+                  <div className={classes.stepTitle}>Step 1: Upload File</div>
+                  {/* <div className={classes.stepTitle}>Total Price: $2</div> */}
+                </Grid>
                 <Grid container>
                   {renderUploadStateCircularProgress()}
                   {acceptedFiles.map((acceptedFile, index) => {
@@ -563,9 +566,13 @@ function UploadMedia() {
               }
               {/* step 3 part payment part */}
               {
-                activeStep >= 2 ?
+                activeStep >= 0 ?
                   <Grid item className={classes.padding20}>
                     <div className={classes.stepTitle}>Step 3: Payment</div>
+                    <Box pt={1} className={classes.uploadSuccess}>
+                      {/* {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploaded */}
+                      Total Price: {totalAmountPayment}$
+                    </Box>
                     <Grid container>
                       <Grid item>
                         <Box pt={2} >

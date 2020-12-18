@@ -37,16 +37,15 @@ function Signin() {
   // variables
   const [isLoading, setIsLoading] = useState(false);
   const [authInfo, setAuthInfo] = useState({
-    email: "",
-    password: ""
+    email: ""
   })
   // snackbar part
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('success');
   const [openMessage, setOpenMessage] = React.useState(false);
   // functions
-  const handleGotoSignup = () => {
-    Router.push("/auth/signup");
+  const handleGotoSignin = () => {
+    Router.push("/auth/signin");
   }
   const handleMessageClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -55,10 +54,10 @@ function Signin() {
     setOpenMessage(false);
   };
 
-  const handleSignin = () => {
-    if (authInfo.email === "" || authInfo.password === "") {
+  const handleSubmit = () => {
+    if (authInfo.email === "") {
       setMessageType("warning")
-      setMessage("Please insert all information.")
+      setMessage("Please insert email.")
       setOpenMessage(true);
     } else if (validateEmail(authInfo.email) !== true) {
       setMessageType("info")
@@ -66,7 +65,7 @@ function Signin() {
       setOpenMessage(true);
     } else {
       setIsLoading(true)
-      authAPI.signin(authInfo)
+      authAPI.forgotpassword(authInfo)
         .then(
           response => {
             setIsLoading(false)
@@ -74,8 +73,10 @@ function Signin() {
               setMessageType("warning")
               setMessage(response.msg)
               setOpenMessage(true);
-            } else if (response.success === "true" && response.jwt_token !== undefined) {
-              Router.push("/transcribe/dashboard");
+            } else if (response.success === "true") {
+                setMessageType("success")
+                setMessage(response.msg)
+                setOpenMessage(true);
             } else {
               setMessageType("error")
               setMessage(response.msg)
@@ -131,7 +132,7 @@ function Signin() {
           <GridItem xs={12} sm={6} md={4}>
             <Card>
               <CardHeader color="success">
-                <h4 className={`${classes.displayFlex} ${classes.justifyCenter} ${classes.cardTitleWhite}`}>Sign In</h4>
+                <h4 className={`${classes.displayFlex} ${classes.justifyCenter} ${classes.cardTitleWhite}`}>Forgot Password</h4>
               </CardHeader>
               <CardBody>
                 <GridContainer>
@@ -153,44 +154,17 @@ function Signin() {
                       onChange={handleInputChange}
                     />
                   </GridItem>
-                  <GridItem xs={12} sm={12} md={12}>
-                    <CustomInput
-                      labelText="Password"
-                      id="password"
-                      formControlProps={{
-                        fullWidth: true,
-                      }}
-                      inputProps={{
-                        type: "password",
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <Lock className={classes.inputIconsColor} />
-                          </InputAdornment>
-                        )
-                      }}
-                      onChange={handleInputChange}
-                    />
-                  </GridItem>
                 </GridContainer>
               </CardBody>
               <CardFooter>
                 <Grid container direction="row" spacing={1}>
                   <Grid container justify="center"  item xs={12}>
-                    <Link href="/auth/forgotpassword" className={classes.forgotPasswordTextDecoration}>Forgot Password?</Link>
-                  </Grid>
-                  <Grid container justify="center"  item xs={12}>
-                    <Button variant="contained" color="primary" onClick={handleGotoSignup}>
-                      Sign Up
+                    <Button variant="contained" color="primary" onClick={handleGotoSignin}>
+                      Go to Sign In
                     </Button>
-                    {
-                      isLoading ?
-                        <Button variant="contained" disabled color="success" className={classes.signinButtonMarginLeft} onClick={handleSignin}>
-                          Sign In
-                        </Button> :
-                        <Button variant="contained" color="success" className={classes.signinButtonMarginLeft} onClick={handleSignin}>
-                          Sign In
-                        </Button>
-                    }
+                    <Button variant="contained" color="success" onClick={handleSubmit}>
+                        Submit    
+                    </Button>
                   </Grid>
                 </Grid>
               </CardFooter>

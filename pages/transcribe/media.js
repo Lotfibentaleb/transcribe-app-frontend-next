@@ -232,7 +232,7 @@ function Media() {
   }
   // functions
   const handleGotoUploadMedia = () => {
-    Router.push("/admin/upload_media");
+    Router.push("/transcribe/upload_media");
   }
   // table variables
   const [order, setOrder] = React.useState("asc");
@@ -605,14 +605,14 @@ function Media() {
           </Snackbar>
           {/* page content */}
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Media List</h4>
               <p className={classes.cardCategoryWhite}>
                 This is a media list page.
               </p>
             </CardHeader>
             <CardBody>
-              <Grid container justify="flex-end">
+              <Grid container justify="center">
                 <Box pt={1} pb={1}>
                   <Button variant="contained" color="primary" onClick={handleGotoUploadMedia}>
                     <CloudUploadIcon />

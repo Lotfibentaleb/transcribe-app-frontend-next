@@ -12,6 +12,7 @@ class Auth {
       .then(response => {
         if (response.data.jwt_token !== null) {
           localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+          localStorage.setItem("permission", JSON.stringify(response.data.permission));
         }
         return response.data;
       });
@@ -28,11 +29,23 @@ class Auth {
       .then(response => {
         if (response.data.jwt_token !== null) {
           localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+          localStorage.setItem("permission", JSON.stringify(response.data.permission));
         }
         return response.data;
       });
   }
 
+  forgotpassword(authInfo) {
+    return axios
+      .post(API_URL + "auth/forgotpassword", authInfo)
+      .then(response => {
+        // if (response.data.jwt_token !== null) {
+        //   localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        //   localStorage.setItem("permission", JSON.stringify(response.data.permission));
+        // }
+        return response.data;
+      });
+  }
 
 }
 

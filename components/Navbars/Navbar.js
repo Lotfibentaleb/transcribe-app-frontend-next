@@ -25,7 +25,7 @@ export default function Header(props) {
   // create styles for this component
   const classes = useStyles();
   function makeBrand() {
-    var name = "NextJS Material Dashboard";
+    var name = "User Profile";
     props.routes.map((prop) => {
       if (router.route.indexOf(prop.layout + prop.path) !== -1) {
         name = props.rtlActive ? prop.rtlName : prop.name;

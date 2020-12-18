@@ -29,5 +29,13 @@ const signinStyles = {
       lineHeight: "1",
     },
   },
+  signinButtonMarginLeft: {
+    marginLeft: '10px',
+  },
+  forgotPasswordTextDecoration: {
+    textDecoration: 'underline',
+    fontSize: '14px',
+    color: '#0772f7'
+  },
 };
 export default signinStyles;

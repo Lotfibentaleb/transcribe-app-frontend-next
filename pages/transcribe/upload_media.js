@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Dropzone from 'react-dropzone';
+import TCO from '2co-react';
 // @material-ui/core components
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
@@ -72,7 +73,8 @@ function UploadMedia() {
 
   // stepper variables and handlers
   const [activeStep, setActiveStep] = React.useState(0);
-
+  const [showTcoModal, setShowTcoModal] = React.useState(0);
+  
   const getSteps = () => {
     return ['Upload File', 'Add Details', 'Payment', 'Start Transcribe', 'Transcribing'];
   }
@@ -298,6 +300,13 @@ function UploadMedia() {
     console.log("Error!", err);
   }
 
+  const handle2Checkout = () => {
+    setShowTcoModal(1);
+  }
+
+  const returnToken = () => {
+    
+  }
 
   ///////////////////////////////////////////////////////////////////
   ////////////////// step 4 start transcribe part ///////////////////
@@ -394,7 +403,7 @@ function UploadMedia() {
           </Snackbar>
           {/* page content */}
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="success">
               <h4 className={classes.cardTitleWhite}>Upload Audio/Video Files</h4>
               <p className={classes.cardCategoryWhite}>
                 This is a subscription page.
@@ -444,7 +453,10 @@ function UploadMedia() {
               </Grid>
               {/* step 1 part file upload */}
               <Grid item className={classes.padding20}>
-                <div className={classes.stepTitle}>Step 1: Upload File</div>
+                <Grid container justify="space-between">
+                  <div className={classes.stepTitle}>Step 1: Upload File</div>
+                  {/* <div className={classes.stepTitle}>Total Price: $2</div> */}
+                </Grid>
                 <Grid container>
                   {renderUploadStateCircularProgress()}
                   {acceptedFiles.map((acceptedFile, index) => {
@@ -560,6 +572,10 @@ function UploadMedia() {
                 activeStep >= 2 ?
                   <Grid item className={classes.padding20}>
                     <div className={classes.stepTitle}>Step 3: Payment</div>
+                    <Box pt={1} className={classes.uploadSuccess}>
+                      {/* {acceptedFiles.length} file{acceptedFiles.length === 1 ? '' : 's'} uploaded */}
+                      Total Price: {totalAmountPayment}$
+                    </Box>
                     <Grid container>
                       <Grid item>
                         <Box pt={2} >
@@ -576,6 +592,30 @@ function UploadMedia() {
                           />
                         </Box>
                       </Grid>
+                      <Grid item>
+                        <Box pt={2} >
+                          <Button variant="contained" className={classes.checkoutBtn} size="large" onClick={(event) => handle2Checkout()}>
+                          <Typography className={classes.iconBtnTextPos}>Pay with </Typography>
+                          <img className={classes.checkoutIcon} src={'https://cdn.icon-icons.com/icons2/1455/PNG/128/2checkout_99452.png'}/>
+                          </Button>
+                        </Box>
+                        {
+                        showTcoModal == 1?
+                        <Box pt={2} >
+                          <TCO
+                          sellerId="250541720353"
+                          publishableKey="50250A84-8914-48FB-98B6-7EEECDCA4508"
+                          sandbox
+                          showForm
+                          showModal
+                          showLoading
+                          returnToken={returnToken}
+                          />
+                        </Box>
+                        :
+                        ''
+                        }
+                    </Grid>
                     </Grid>
                   </Grid>
                   :

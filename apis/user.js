@@ -60,6 +60,47 @@ class User {
         }
       )
   }
+
+  updateProfile(profileInfo) {
+    return axios
+      .post(API_URL + "users/edit/profile", profileInfo, { headers: authHeader() })
+      .then(
+        response => {
+          localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+          return response.data;
+        },
+        error => {
+          return error;
+        }
+      )
+  }
+
+  profile() {
+    return axios
+      .get(API_URL + "users/profile", { headers: authHeader() })
+      .then(response => {
+        localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        return response.data;
+      },
+      error => {
+        return error;
+      }
+    );
+  }
+
+  resetPassword(passwordInfo) {
+    return axios
+      .post(API_URL + "users/resetpassword", passwordInfo, { headers: authHeader() })
+      .then(response => {
+        localStorage.setItem("jwt_token", JSON.stringify(response.data.jwt_token));
+        return response.data;
+      },
+      error => {
+        return error;
+      }
+    );
+  }
+  
 }
 
 export default new User();

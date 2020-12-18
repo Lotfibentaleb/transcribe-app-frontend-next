@@ -79,7 +79,25 @@ const uploadMediaStyles = makeStyles((theme) => ({
     minWidth: "240px"
   },
   iconBtnTextPos: {
+    fontSize: '13px',
     marginLeft: "10px"
   },
+  checkoutBtn: {
+    fontSize: '14px',
+    marginLeft: '15px',
+    borderRadius: '20px',
+    textTransform: 'none',
+    background: '#ffc439',
+    width: '250px',
+    height: '35px',
+    '&:hover': {
+      backgroundColor: '#ffc439',
+    }
+  },
+  checkoutIcon: {
+    marginLeft: '10px',
+    width: '27px',
+    height: '27px',
+  }
 }));
 export default uploadMediaStyles;

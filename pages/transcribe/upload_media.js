@@ -301,8 +301,11 @@ function UploadMedia() {
   }
 
   const handle2Checkout = () => {
-    console.log('1111111111111111');
     setShowTcoModal(1);
+  }
+
+  const returnToken = () => {
+    
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -566,7 +569,7 @@ function UploadMedia() {
               }
               {/* step 3 part payment part */}
               {
-                activeStep >= 0 ?
+                activeStep >= 2 ?
                   <Grid item className={classes.padding20}>
                     <div className={classes.stepTitle}>Step 3: Payment</div>
                     <Box pt={1} className={classes.uploadSuccess}>

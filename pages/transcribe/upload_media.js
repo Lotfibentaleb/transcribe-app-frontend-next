@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Dropzone from 'react-dropzone';
-import TCO from '2co-react';
+// import TCO from '2co-react';
 // @material-ui/core components
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
@@ -599,7 +599,7 @@ function UploadMedia() {
                           <img className={classes.checkoutIcon} src={'https://cdn.icon-icons.com/icons2/1455/PNG/128/2checkout_99452.png'}/>
                           </Button>
                         </Box>
-                        {
+                        {/* {
                         showTcoModal == 1?
                         <Box pt={2} >
                           <TCO
@@ -614,7 +614,7 @@ function UploadMedia() {
                         </Box>
                         :
                         ''
-                        }
+                        } */}
                     </Grid>
                     </Grid>
                   </Grid>
